@@ -1,0 +1,27 @@
+github.com/belluikit/goffmpeg-libs/ios_arm64
+============================================
+
+lib/ contains FFmpeg libraries (https://ffmpeg.org) built for ios_arm64:
+
+  libavcodec.a libavformat.a libavutil.a libswresample.a libswscale.a
+
+FFmpeg version: N-125841-ge2bc6d88cd (git revision e2bc6d88cd68184288c16570e04881c3a426a05a).
+No local patches: goffmpeg's build applies patches/*.patch to the FFmpeg
+checkout, and goffmpeg has no such files (BUILDING.md: "The directory is
+currently empty").
+
+License: GNU Lesser General Public License, version 2.1 or later. The full
+text is in LICENSE at the root of this repository, and is included in this
+module's zip by the go command. The build used neither --enable-gpl nor
+--enable-nonfree; each library reports "license: LGPL version 2.1 or later".
+
+Configure line, as recorded in libavutil (avutil_configuration()). Absolute
+build-machine paths are shortened: <goffmpeg> is the goffmpeg checkout on the
+CI runner.
+
+  --prefix=<goffmpeg>/internal/libav/dist/ios_arm64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=arm64 --target-os=darwin --enable-cross-compile --enable-securetransport --enable-videotoolbox --enable-hwaccel='h264_videotoolbox,hevc_videotoolbox,vp9_videotoolbox,av1_videotoolbox' --disable-avdevice --cc='clang -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -mios-version-min=13.0' --extra-ldflags='-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -mios-version-min=13.0' --enable-static --disable-shared
+
+Corresponding source:
+  FFmpeg:  https://github.com/FFmpeg/FFmpeg/tree/e2bc6d88cd68184288c16570e04881c3a426a05a
+  Build:   https://github.com/belluikit/goffmpeg (Makefile, BUILDING.md), which
+           pins that revision and this configure line.

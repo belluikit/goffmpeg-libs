@@ -54,13 +54,17 @@ the shared bridge cannot be linked at all.
 
 ## Provenance and licence
 
-Built from FFmpeg `96f82f4fbbdc8f7525672bafbf37616ea5fd76ca` by the Makefile in
-goffmpeg, which pins the configuration. Decode-only: every native decoder,
+Built from FFmpeg `e2bc6d88cd68184288c16570e04881c3a426a05a` (`N-125841-ge2bc6d88cd`)
+by the Makefile in [goffmpeg](https://github.com/belluikit/goffmpeg), which pins the configuration. Decode-only: every native decoder,
 demuxer, parser and protocol, with encoders, muxers and avfilter disabled.
 
 No `--enable-gpl` and no `--enable-nonfree`, so these artifacts are
 **LGPL v2.1 or later**. Adding a GPL component would relicense everything
 linking them.
+
+The license text is in [LICENSE](LICENSE). Each platform directory has a
+`NOTICE` with the exact configure line recorded in its libraries and where to
+get the corresponding FFmpeg source.
 
 Regenerate with:
 
