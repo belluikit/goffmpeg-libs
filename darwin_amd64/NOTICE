@@ -28,3 +28,5 @@ Corresponding source:
   Bridge:  lib/libgoffmpeg.* is these FFmpeg libraries linked with goffmpeg's
            bridge.c and bridge_avf_darwin.m (BSD-3-Clause), built by goffmpeg's
            'make bridge-shared'.
+           The current lib/libgoffmpeg.* was built from goffmpeg commit
+           164a90d (bridge.c at or after e13bdc6) by GitHub Actions run 38706545507.
