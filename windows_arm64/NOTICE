@@ -15,6 +15,15 @@ text is in LICENSE at the root of this repository, and is included in this
 module's zip by the go command. The build used neither --enable-gpl nor
 --enable-nonfree; each library reports "license: LGPL version 2.1 or later".
 
+lib/libgoffmpeg.dll is linked by llvm-mingw 20261006 and so
+contains parts of the MinGW-w64 runtime (startup code and C runtime glue).
+Some of it requires its copyright and license notices to accompany
+binaries: they are in COPYING.MinGW-w64-runtime.txt in this module, taken
+from mingw-w64's own copy of that file. The static libraries in lib/
+contain no runtime code.
+llvm-mingw's compiler-rt builtins are linked too, under Apache-2.0 WITH
+LLVM-exception, which does not require a notice for compiled code.
+
 Configure line, as recorded in libavutil (avutil_configuration()). Absolute
 build-machine paths are shortened: <goffmpeg> is the goffmpeg checkout on the
 CI runner.
