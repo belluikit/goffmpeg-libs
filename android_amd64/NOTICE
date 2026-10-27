@@ -22,6 +22,9 @@ CI runner and <ndk-30.0.14904198> is the Android NDK of that version.
   --prefix=<goffmpeg>/internal/libav/dist/android_amd64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=x86_64 --target-os=android --enable-cross-compile --disable-avdevice --enable-jni --enable-mediacodec --cc=<ndk-30.0.14904198>/toolchains/llvm/prebuilt/darwin-x86_64/bin/x86_64-linux-android21-clang --cross-prefix=<ndk-30.0.14904198>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm- --nm=<ndk-30.0.14904198>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-nm --ar=<ndk-30.0.14904198>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar --ranlib=<ndk-30.0.14904198>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ranlib --strip=<ndk-30.0.14904198>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-strip --enable-static --disable-shared
 
 Corresponding source:
-  FFmpeg:  https://github.com/FFmpeg/FFmpeg/tree/e2bc6d88cd68184288c16570e04881c3a426a05a
+  FFmpeg:  https://github.com/belluikit/ffmpeg/tree/goffmpeg-e2bc6d88cd
+           belluikit's mirror of FFmpeg. The tag is commit
+           e2bc6d88cd68184288c16570e04881c3a426a05a and stays for as long as
+           libraries built from it are published.
   Build:   https://github.com/belluikit/goffmpeg (Makefile, BUILDING.md), which
            pins that revision and this configure line.
