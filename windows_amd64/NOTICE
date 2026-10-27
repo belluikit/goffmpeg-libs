@@ -15,6 +15,15 @@ text is in LICENSE at the root of this repository, and is included in this
 module's zip by the go command. The build used neither --enable-gpl nor
 --enable-nonfree; each library reports "license: LGPL version 2.1 or later".
 
+lib/libgoffmpeg.dll is linked by mingw-w64 GCC (Ubuntu 24.04's mingw-w64 package) and so
+contains parts of the MinGW-w64 runtime (startup code and C runtime glue).
+Some of it requires its copyright and license notices to accompany
+binaries: they are in COPYING.MinGW-w64-runtime.txt in this module, taken
+from mingw-w64's own copy of that file. The static libraries in lib/
+contain no runtime code.
+libgcc is linked statically (-static-libgcc) and is under the GCC Runtime
+Library Exception, which permits this without further notice.
+
 Configure line, as recorded in libavutil (avutil_configuration()). Absolute
 build-machine paths are shortened: <goffmpeg> is the goffmpeg checkout on the
 CI runner.
@@ -31,4 +40,7 @@ Corresponding source:
   Bridge:  lib/libgoffmpeg.* is these FFmpeg libraries linked with goffmpeg's
            bridge.c (BSD-3-Clause), built by goffmpeg's 'make bridge-shared'.
            The current lib/libgoffmpeg.* was built from goffmpeg commit
-           164a90d (bridge.c at or after e13bdc6) by GitHub Actions run 38706545507.
+           63d6038 by GitHub Actions run 40588722472, linked against FFmpeg
+           libraries built in that run from the same revision and configure
+           line as lib/*.a, except for --prefix, which that build sets to
+           /<target> (see goffmpeg-libs#6).
