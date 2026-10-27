@@ -15,11 +15,9 @@ text is in LICENSE at the root of this repository, and is included in this
 module's zip by the go command. The build used neither --enable-gpl nor
 --enable-nonfree; each library reports "license: LGPL version 2.1 or later".
 
-Configure line, as recorded in libavutil (avutil_configuration()). Absolute
-build-machine paths are shortened: <goffmpeg> is the goffmpeg checkout on the
-CI runner.
+Configure line, as recorded in libavutil (avutil_configuration()).
 
-  --prefix=<goffmpeg>/internal/libav/dist/linux_amd64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=x86_64 --target-os=linux --enable-openssl --enable-avdevice --enable-indev=v4l2 --enable-static --disable-shared
+  --prefix=/linux_amd64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=x86_64 --target-os=linux --enable-openssl --enable-avdevice --enable-indev=v4l2 --enable-static --disable-shared
 
 Corresponding source:
   FFmpeg:  https://github.com/belluikit/ffmpeg/tree/goffmpeg-e2bc6d88cd
@@ -32,6 +30,4 @@ Corresponding source:
            bridge.c (BSD-3-Clause), built by goffmpeg's 'make bridge-shared'.
            The current lib/libgoffmpeg.* was built from goffmpeg commit
            cc0758b by GitHub Actions run 40594708079, linked against FFmpeg
-           libraries built in that run from the same revision and configure
-           line as lib/*.a, except for --prefix, which that build sets to
-           /<target> (see goffmpeg-libs#6).
+           libraries built in that same run: the lib/*.a in this module.
