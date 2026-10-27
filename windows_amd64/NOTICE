@@ -22,7 +22,10 @@ CI runner.
   --prefix=<goffmpeg>/internal/libav/dist/windows_amd64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=x86_64 --target-os=mingw32 --enable-cross-compile --cross-prefix=x86_64-w64-mingw32- --enable-schannel --enable-avdevice --enable-indev=dshow --enable-static --disable-shared
 
 Corresponding source:
-  FFmpeg:  https://github.com/FFmpeg/FFmpeg/tree/e2bc6d88cd68184288c16570e04881c3a426a05a
+  FFmpeg:  https://github.com/belluikit/ffmpeg/tree/goffmpeg-e2bc6d88cd
+           belluikit's mirror of FFmpeg. The tag is commit
+           e2bc6d88cd68184288c16570e04881c3a426a05a and stays for as long as
+           libraries built from it are published.
   Build:   https://github.com/belluikit/goffmpeg (Makefile, BUILDING.md), which
            pins that revision and this configure line.
   Bridge:  lib/libgoffmpeg.* is these FFmpeg libraries linked with goffmpeg's

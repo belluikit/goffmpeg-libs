@@ -66,6 +66,13 @@ The license text is in [LICENSE](LICENSE). Each platform directory has a
 `NOTICE` with the exact configure line recorded in its libraries and where to
 get the corresponding FFmpeg source.
 
+That source is [belluikit/ffmpeg](https://github.com/belluikit/ffmpeg), a
+mirror of FFmpeg, at the tag `goffmpeg-e2bc6d88cd`. LGPL-2.1 asks for the
+source to be offered from the same place as the binaries, and an upstream link
+alone depends on a repository we do not control keeping that commit. Every
+FFmpeg revision a published module was built from keeps its
+`goffmpeg-<short sha>` tag there.
+
 Regenerate with:
 
 ```sh
