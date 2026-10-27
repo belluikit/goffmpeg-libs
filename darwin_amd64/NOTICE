@@ -15,11 +15,9 @@ text is in LICENSE at the root of this repository, and is included in this
 module's zip by the go command. The build used neither --enable-gpl nor
 --enable-nonfree; each library reports "license: LGPL version 2.1 or later".
 
-Configure line, as recorded in libavutil (avutil_configuration()). Absolute
-build-machine paths are shortened: <goffmpeg> is the goffmpeg checkout on the
-CI runner.
+Configure line, as recorded in libavutil (avutil_configuration()).
 
-  --prefix=<goffmpeg>/internal/libav/dist/darwin_amd64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=x86_64 --target-os=darwin --enable-cross-compile --enable-securetransport --enable-videotoolbox --enable-hwaccel='h264_videotoolbox,hevc_videotoolbox,vp9_videotoolbox,av1_videotoolbox' --enable-avdevice --enable-indev=avfoundation --enable-avfoundation --cc='clang -arch x86_64 -mmacosx-version-min=11.0' --enable-static --disable-shared
+  --prefix=/darwin_amd64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=x86_64 --target-os=darwin --enable-cross-compile --enable-securetransport --enable-videotoolbox --enable-hwaccel='h264_videotoolbox,hevc_videotoolbox,vp9_videotoolbox,av1_videotoolbox' --enable-avdevice --enable-indev=avfoundation --enable-avfoundation --cc='clang -arch x86_64 -mmacosx-version-min=11.0' --enable-static --disable-shared
 
 Corresponding source:
   FFmpeg:  https://github.com/belluikit/ffmpeg/tree/goffmpeg-e2bc6d88cd
@@ -32,7 +30,5 @@ Corresponding source:
            bridge.c and bridge_avf_darwin.m (BSD-3-Clause), built by goffmpeg's
            'make bridge-shared'.
            The current lib/libgoffmpeg.* was built from goffmpeg commit
-           63d6038 by GitHub Actions run 40588722472, linked against FFmpeg
-           libraries built in that run from the same revision and configure
-           line as lib/*.a, except for --prefix, which that build sets to
-           /<target> (see goffmpeg-libs#6).
+           cc0758b by GitHub Actions run 40594708079, linked against FFmpeg
+           libraries built in that same run: the lib/*.a in this module.

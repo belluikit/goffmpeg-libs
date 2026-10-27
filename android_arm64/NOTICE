@@ -16,10 +16,10 @@ module's zip by the go command. The build used neither --enable-gpl nor
 --enable-nonfree; each library reports "license: LGPL version 2.1 or later".
 
 Configure line, as recorded in libavutil (avutil_configuration()). Absolute
-build-machine paths are shortened: <goffmpeg> is the goffmpeg checkout on the
-CI runner and <ndk-30.0.14904198> is the Android NDK of that version.
+build-machine paths are shortened: <ndk-29.0.14206865> is the Android NDK
+of that version on the CI runner.
 
-  --prefix=<goffmpeg>/internal/libav/dist/android_arm64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=aarch64 --target-os=android --enable-cross-compile --disable-avdevice --enable-jni --enable-mediacodec --cc=<ndk-30.0.14904198>/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang --cross-prefix=<ndk-30.0.14904198>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm- --nm=<ndk-30.0.14904198>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-nm --ar=<ndk-30.0.14904198>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar --ranlib=<ndk-30.0.14904198>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ranlib --strip=<ndk-30.0.14904198>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-strip --enable-static --disable-shared
+  --prefix=/android_arm64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=aarch64 --target-os=android --enable-cross-compile --disable-avdevice --enable-jni --enable-mediacodec --cc=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang --cross-prefix=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm- --nm=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-nm --ar=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar --ranlib=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ranlib --strip=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-strip --enable-static --disable-shared
 
 Corresponding source:
   FFmpeg:  https://github.com/belluikit/ffmpeg/tree/goffmpeg-e2bc6d88cd
