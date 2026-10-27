@@ -40,4 +40,7 @@ Corresponding source:
   Bridge:  lib/libgoffmpeg.* is these FFmpeg libraries linked with goffmpeg's
            bridge.c (BSD-3-Clause), built by goffmpeg's 'make bridge-shared'.
            The current lib/libgoffmpeg.* was built from goffmpeg commit
-           164a90d (bridge.c at or after e13bdc6) by GitHub Actions run 38706545507.
+           63d6038 by GitHub Actions run 40588722472, linked against FFmpeg
+           libraries built in that run from the same revision and configure
+           line as lib/*.a, except for --prefix, which that build sets to
+           /<target> (see goffmpeg-libs#6).
