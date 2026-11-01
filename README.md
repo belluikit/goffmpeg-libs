@@ -73,6 +73,25 @@ alone depends on a repository we do not control keeping that commit. Every
 FFmpeg revision a published module was built from keeps its
 `goffmpeg-<short sha>` tag there.
 
+## https and TLS
+
+FFmpeg needs a TLS library to open `https`, and these builds use
+`--disable-autodetect`, so a target has only the one its configure line names.
+Each module's `NOTICE` records that line.
+
+| Modules | TLS library |
+|---|---|
+| `darwin_*`, `ios_arm64`, `iossimulator_arm64` | SecureTransport |
+| `linux_*` | OpenSSL |
+| `windows_*` | Schannel |
+| `android_*` | **none** |
+
+So on Android an `https` URL cannot open, including an `https` HLS playlist. It
+fails at `avformat_open_input`, which goffmpeg reports as
+`failed to open decoder: -1`. Plain `http` works, and so does `https` read
+through Go and handed to goffmpeg's `OpenReader`. HLS cannot go that way,
+because FFmpeg has to fetch the segments itself.
+
 Regenerate with:
 
 ```sh
