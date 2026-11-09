@@ -1,6 +1,6 @@
 # goffmpeg-libs
 
-Prebuilt FFmpeg libraries, static and shared, for [goffmpeg](https://github.com/belluikit/goffmpeg),
+Prebuilt FFmpeg shared libraries for [goffmpeg](https://github.com/belluikit/goffmpeg),
 published as one Go module per platform.
 
 ## Why one module per platform
@@ -10,7 +10,7 @@ committed, so vendoring every target into goffmpeg itself would force each
 consumer to download all of them — roughly 260MB of module zips — to use one.
 
 Each directory here is its own module, so the proxy serves them independently
-and a build downloads only its own target (16-31MB, `shared/` included). goffmpeg selects the
+and a build downloads only its own target (13-22MB on disk from v0.5.0). goffmpeg selects the
 right one with a build constraint:
 
 ```go
@@ -47,13 +47,15 @@ itself, so they are not duplicated here.
 
 ## Contents
 
-Each module carries FFmpeg for its target twice: as shared libraries in
-`shared/`, which goffmpeg links, and as static libraries in `lib/`, which
-nothing links since goffmpeg#40 (whether to stop publishing them is
-[goffmpeg#45](https://github.com/belluikit/goffmpeg/issues/45)). The desktop
-modules also carry `lib/libgoffmpeg.{so,dll,dylib}`, the bridge the purego
-backend (`CGO_ENABLED=0`) dlopens. It holds no FFmpeg code: it loads the
-libraries in `shared/`, looking beside itself and in `../shared`.
+Each module carries FFmpeg for its target as shared libraries in `shared/`,
+which goffmpeg links. The desktop modules also carry
+`lib/libgoffmpeg.{so,dll,dylib}`, the bridge the purego backend
+(`CGO_ENABLED=0`) dlopens. It holds no FFmpeg code: it loads the libraries in
+`shared/`, looking beside itself and in `../shared`.
+
+Up to v0.4.0, `lib/` also held FFmpeg's static archives. Nothing links them
+since goffmpeg#40, so from v0.5.0 they are no longer published
+([goffmpeg#45](https://github.com/belluikit/goffmpeg/issues/45)).
 
 ### Shared libraries
 
@@ -96,8 +98,10 @@ avformat, and avdevice on desktop.
 - **libswscale is linked by a file of its own**, `libav_swscale.go`, which a
   `goffmpeg_novideo` (audio-only) build leaves out. That binary does not list
   libswscale, and its package can leave it out.
-- **On Linux, the libraries need the glibc they were built against**: 2.35 on
-  amd64, 2.38 on arm64
+- **On Linux, the libraries need glibc 2.35 or newer**: Ubuntu 22.04 LTS,
+  Debian 12 and later. A shared library needs at least the glibc it was built
+  against, so they are built on Ubuntu 22.04, and goffmpeg's build refuses one
+  that needs more
   ([goffmpeg#44](https://github.com/belluikit/goffmpeg/issues/44)).
 - **Files arrive read-only, without the executable bit**: the go command
   doesn't keep file modes. macOS and Linux load them that way, so a
@@ -115,8 +119,8 @@ No `--enable-gpl` and no `--enable-nonfree`, so these artifacts are
 linking them.
 
 The license text is in [LICENSE](LICENSE). Each platform directory has a
-`NOTICE` with the exact configure lines recorded in its libraries, one for
-`lib/` and one for `shared/`, and where to get the corresponding FFmpeg source.
+`NOTICE` with the exact configure line recorded in its libraries, and where to
+get the corresponding FFmpeg source.
 
 That source is [belluikit/ffmpeg](https://github.com/belluikit/ffmpeg), a
 mirror of FFmpeg, at the tag `goffmpeg-e2bc6d88cd`. LGPL-2.1 asks for the
@@ -147,7 +151,7 @@ because FFmpeg has to fetch the segments itself.
 Regenerate with:
 
 ```sh
-make dist TARGET=linux_amd64 && make dist-shared TARGET=linux_amd64 && make sync-libs TARGET=linux_amd64
+make linux-docker TARGET=linux_amd64 DOCKER_GOALS="dist bridge-shared" && make sync-libs TARGET=linux_amd64
 ```
 
 Publish from CI rather than a local build: goffmpeg's `check-paths` refuses
