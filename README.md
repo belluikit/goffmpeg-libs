@@ -22,6 +22,10 @@ import _ "github.com/belluikit/goffmpeg-libs/darwin_arm64"
 The blank import contributes that platform's `#cgo LDFLAGS`, which propagate to
 the final link. The modules expose no Go API.
 
+Those flags are in `libav.go` and `libav_swscale.go`, which goffmpeg's
+`make sync-libs` generates from the files in `shared/` (its
+`scripts/gen-libav.sh`). Don't edit them by hand.
+
 The FFmpeg *headers* are identical for every target and live in goffmpeg
 itself, so they are not duplicated here.
 
@@ -43,22 +47,21 @@ itself, so they are not duplicated here.
 
 ## Contents
 
-Each module carries the FFmpeg static libraries for its target, plus
-`libgoffmpeg.{so,dll,dylib}` — the shared bridge the purego backend
-(`CGO_ENABLED=0`) dlopens. The cgo backend links the static libraries directly
-and ignores the shared object.
-
-The Linux and Windows libraries are built with `--enable-pic`. FFmpeg's
-hand-written assembly is not position-independent by default, and without it
-the shared bridge cannot be linked at all.
+Each module carries FFmpeg for its target twice: as shared libraries in
+`shared/`, which goffmpeg links, and as static libraries in `lib/`, which
+nothing links since goffmpeg#40 (whether to stop publishing them is
+[goffmpeg#45](https://github.com/belluikit/goffmpeg/issues/45)). The desktop
+modules also carry `lib/libgoffmpeg.{so,dll,dylib}`, the bridge the purego
+backend (`CGO_ENABLED=0`) dlopens. It holds no FFmpeg code: it loads the
+libraries in `shared/`, looking beside itself and in `../shared`.
 
 ### Shared libraries
 
-`shared/` holds the same FFmpeg built as shared libraries. Player ships these
-in apps, so a user can replace them (LGPL 2.1 §6b; Player ADR-0037 D3). They
-come from a configure of their own, recorded in each `NOTICE`. goffmpeg links
-the static libraries until it switches
-([goffmpeg#40](https://github.com/belluikit/goffmpeg/issues/40)).
+`shared/` holds FFmpeg built as shared libraries, which goffmpeg links on
+every platform, so an app ships them and a user can replace them (LGPL 2.1
+§6b; Player ADR-0037 D3,
+[goffmpeg#40](https://github.com/belluikit/goffmpeg/issues/40)). They come
+from a configure of their own, recorded in each `NOTICE`.
 
 | Modules | Files in `shared/` | How a program finds them |
 |---|---|---|
@@ -86,7 +89,16 @@ avformat, and avdevice on desktop.
   `com.trendvidia.goffmpeg.<library>`, minimum iOS 13.0) and an ad-hoc
   signature. The app's packager re-signs it when it embeds it.
 - **The libraries carry no rpath of their own.** Whatever loads them supplies
-  the search path, as in the table.
+  the search path, as in the table. On macOS and Linux the link files add an
+  rpath to this module's `shared/`, so `go run` and `go test` find them in the
+  module cache; a packaged app replaces it with its own. On Windows, put
+  `shared/` on `PATH` to run from source.
+- **libswscale is linked by a file of its own**, `libav_swscale.go`, which a
+  `goffmpeg_novideo` (audio-only) build leaves out. That binary does not list
+  libswscale, and its package can leave it out.
+- **On Linux, the libraries need the glibc they were built against**: 2.35 on
+  amd64, 2.38 on arm64
+  ([goffmpeg#44](https://github.com/belluikit/goffmpeg/issues/44)).
 - **Files arrive read-only, without the executable bit**: the go command
   doesn't keep file modes. macOS and Linux load them that way, so a
   development build can use them straight from the module cache. A packager
