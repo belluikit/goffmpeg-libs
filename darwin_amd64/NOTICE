@@ -37,14 +37,12 @@ Corresponding source:
            libraries built from it are published.
   Build:   https://github.com/belluikit/goffmpeg (Makefile, BUILDING.md), which
            pins that revision and these configure lines.
-  Bridge:  lib/libgoffmpeg.* is these FFmpeg libraries linked with goffmpeg's
-           bridge.c and bridge_avf_darwin.m (BSD-3-Clause), built by goffmpeg's
-           'make bridge-shared'.
+  Bridge:  lib/libgoffmpeg.* is goffmpeg's bridge.c and bridge_avf_darwin.m
+           (BSD-3-Clause), built by goffmpeg's 'make bridge-shared'. It holds
+           no FFmpeg code: it loads the libraries in shared/, looking beside
+           itself and in ../shared.
            The current lib/libgoffmpeg.* was built from goffmpeg commit
-           faac750 by GitHub Actions run 41919430440, linked against FFmpeg
-           libraries built in that same run. Those match the lib/*.a in this
-           module, which run 40594708079 built, object file for object file;
-           only build timestamps differ.
+           56ff0d7 by GitHub Actions run 42614744092.
   Shared:  shared/ was built by goffmpeg's 'make dist-shared' from goffmpeg
            commit 2eb34b5 by GitHub Actions run 42569150705, from the same FFmpeg
            revision and base configure line as lib/.
