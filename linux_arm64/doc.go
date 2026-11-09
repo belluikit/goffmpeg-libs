@@ -1,4 +1,4 @@
-// Package linux_arm64 carries the prebuilt FFmpeg static libraries for Linux arm64.
+// Package linux_arm64 carries the prebuilt FFmpeg libraries, static and shared, for Linux arm64.
 //
 // It exposes no Go API. goffmpeg imports it for its side effects: the
 // cgo directives in libav.go contribute this platform's linker flags,

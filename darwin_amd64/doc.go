@@ -1,4 +1,4 @@
-// Package darwin_amd64 carries the prebuilt FFmpeg static libraries for macOS on Intel.
+// Package darwin_amd64 carries the prebuilt FFmpeg libraries, static and shared, for macOS on Intel.
 //
 // It exposes no Go API. goffmpeg imports it for its side effects: the
 // cgo directives in libav.go contribute this platform's linker flags,

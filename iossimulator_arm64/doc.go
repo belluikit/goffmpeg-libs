@@ -1,4 +1,4 @@
-// Package iossimulator_arm64 carries the prebuilt FFmpeg static libraries for the iOS simulator on Apple silicon.
+// Package iossimulator_arm64 carries the prebuilt FFmpeg libraries, static and shared, for the iOS simulator on Apple silicon.
 //
 // It exposes no Go API. goffmpeg imports it for its side effects: the
 // cgo directives in libav.go contribute this platform's linker flags,

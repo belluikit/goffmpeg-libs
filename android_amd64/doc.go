@@ -1,4 +1,4 @@
-// Package android_amd64 carries the prebuilt FFmpeg static libraries for Android x86_64.
+// Package android_amd64 carries the prebuilt FFmpeg libraries, static and shared, for Android x86_64.
 //
 // It exposes no Go API. goffmpeg imports it for its side effects: the
 // cgo directives in libav.go contribute this platform's linker flags,
