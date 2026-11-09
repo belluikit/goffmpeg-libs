@@ -5,6 +5,11 @@ lib/ contains FFmpeg libraries (https://ffmpeg.org) built for windows_amd64:
 
   libavcodec.a libavdevice.a libavformat.a libavutil.a libgoffmpeg.dll libswresample.a libswscale.a
 
+shared/ contains the same FFmpeg built as shared libraries, for apps that
+ship it so that a user can replace it (LGPL 2.1 section 6b):
+
+  avcodec-goffmpeg-63.dll avdevice-goffmpeg-63.dll avformat-goffmpeg-63.dll avutil-goffmpeg-61.dll libavcodec-goffmpeg.dll.a libavdevice-goffmpeg.dll.a libavformat-goffmpeg.dll.a libavutil-goffmpeg.dll.a libswresample-goffmpeg.dll.a libswscale-goffmpeg.dll.a swresample-goffmpeg-7.dll swscale-goffmpeg-10.dll
+
 FFmpeg version: N-125841-ge2bc6d88cd (git revision e2bc6d88cd68184288c16570e04881c3a426a05a).
 No local patches: goffmpeg's build applies patches/*.patch to the FFmpeg
 checkout, and goffmpeg has no such files (BUILDING.md: "The directory is
@@ -15,8 +20,8 @@ text is in LICENSE at the root of this repository, and is included in this
 module's zip by the go command. The build used neither --enable-gpl nor
 --enable-nonfree; each library reports "license: LGPL version 2.1 or later".
 
-lib/libgoffmpeg.dll is linked by mingw-w64 GCC (Ubuntu 24.04's mingw-w64 package) and so
-contains parts of the MinGW-w64 runtime (startup code and C runtime glue).
+lib/libgoffmpeg.dll and the DLLs in shared/ are linked by mingw-w64 GCC (Ubuntu 24.04's mingw-w64 package) and so
+contain parts of the MinGW-w64 runtime (startup code and C runtime glue).
 Some of it requires its copyright and license notices to accompany
 binaries: they are in COPYING.MinGW-w64-runtime.txt in this module, taken
 from mingw-w64's own copy of that file. The static libraries in lib/
@@ -24,9 +29,15 @@ contain no runtime code.
 libgcc is linked statically (-static-libgcc) and is under the GCC Runtime
 Library Exception, which permits this without further notice.
 
-Configure line, as recorded in libavutil (avutil_configuration()).
+Configure line of lib/, as recorded in libavutil (avutil_configuration()).
 
   --prefix=/windows_amd64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=x86_64 --target-os=mingw32 --enable-cross-compile --cross-prefix=x86_64-w64-mingw32- --enable-schannel --enable-avdevice --enable-indev=dshow --enable-static --disable-shared
+
+Configure line of shared/, as recorded in its libavutil. It is the line
+above with --enable-shared --disable-static and the flags that name and
+place the shared libraries.
+
+  --prefix=/windows_amd64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=x86_64 --target-os=mingw32 --enable-cross-compile --cross-prefix=x86_64-w64-mingw32- --enable-schannel --enable-avdevice --enable-indev=dshow --enable-shared --disable-static --build-suffix=-goffmpeg --extra-ldsoflags=-static-libgcc
 
 Corresponding source:
   FFmpeg:  https://github.com/belluikit/ffmpeg/tree/goffmpeg-e2bc6d88cd
@@ -34,10 +45,13 @@ Corresponding source:
            e2bc6d88cd68184288c16570e04881c3a426a05a and stays for as long as
            libraries built from it are published.
   Build:   https://github.com/belluikit/goffmpeg (Makefile, BUILDING.md), which
-           pins that revision and this configure line.
+           pins that revision and these configure lines.
   Bridge:  lib/libgoffmpeg.* is these FFmpeg libraries linked with goffmpeg's
            bridge.c (BSD-3-Clause), built by goffmpeg's 'make bridge-shared'.
            The current lib/libgoffmpeg.* was built from goffmpeg commit
            faac750 by GitHub Actions run 41919430440, linked against FFmpeg
            libraries built in that same run. Those are byte for byte the
            lib/*.a in this module, which run 40594708079 built.
+  Shared:  shared/ was built by goffmpeg's 'make dist-shared' from goffmpeg
+           commit 2eb34b5 by GitHub Actions run 42569150705, from the same FFmpeg
+           revision and base configure line as lib/.

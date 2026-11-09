@@ -5,6 +5,11 @@ lib/ contains FFmpeg libraries (https://ffmpeg.org) built for android_amd64:
 
   libavcodec.a libavformat.a libavutil.a libswresample.a libswscale.a
 
+shared/ contains the same FFmpeg built as shared libraries, for apps that
+ship it so that a user can replace it (LGPL 2.1 section 6b):
+
+  libavcodec-goffmpeg.so libavformat-goffmpeg.so libavutil-goffmpeg.so libswresample-goffmpeg.so libswscale-goffmpeg.so
+
 FFmpeg version: N-125841-ge2bc6d88cd (git revision e2bc6d88cd68184288c16570e04881c3a426a05a).
 No local patches: goffmpeg's build applies patches/*.patch to the FFmpeg
 checkout, and goffmpeg has no such files (BUILDING.md: "The directory is
@@ -15,11 +20,17 @@ text is in LICENSE at the root of this repository, and is included in this
 module's zip by the go command. The build used neither --enable-gpl nor
 --enable-nonfree; each library reports "license: LGPL version 2.1 or later".
 
-Configure line, as recorded in libavutil (avutil_configuration()). Absolute
-build-machine paths are shortened: <ndk-29.0.14206865> is the Android NDK
+Configure line of lib/, as recorded in libavutil (avutil_configuration()). In both
+lines, absolute build-machine paths are shortened: <ndk-29.0.14206865> is the Android NDK
 of that version on the CI runner.
 
   --prefix=/android_amd64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=x86_64 --target-os=android --enable-cross-compile --disable-avdevice --enable-jni --enable-mediacodec --cc=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/x86_64-linux-android21-clang --cross-prefix=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm- --nm=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-nm --ar=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar --ranlib=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ranlib --strip=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-strip --enable-static --disable-shared
+
+Configure line of shared/, as recorded in its libavutil. It is the line
+above with --enable-shared --disable-static and the flags that name and
+place the shared libraries.
+
+  --prefix=/android_amd64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=x86_64 --target-os=android --enable-cross-compile --disable-avdevice --enable-jni --enable-mediacodec --cc=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/x86_64-linux-android21-clang --cross-prefix=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm- --nm=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-nm --ar=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar --ranlib=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ranlib --strip=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-strip --enable-shared --disable-static --build-suffix=-goffmpeg --extra-ldsoflags='-Wl,-z,max-page-size=16384'
 
 Corresponding source:
   FFmpeg:  https://github.com/belluikit/ffmpeg/tree/goffmpeg-e2bc6d88cd
@@ -27,4 +38,7 @@ Corresponding source:
            e2bc6d88cd68184288c16570e04881c3a426a05a and stays for as long as
            libraries built from it are published.
   Build:   https://github.com/belluikit/goffmpeg (Makefile, BUILDING.md), which
-           pins that revision and this configure line.
+           pins that revision and these configure lines.
+  Shared:  shared/ was built by goffmpeg's 'make dist-shared' from goffmpeg
+           commit 2eb34b5 by GitHub Actions run 42569150705, from the same FFmpeg
+           revision and base configure line as lib/.
