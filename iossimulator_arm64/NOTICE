@@ -1,12 +1,9 @@
 github.com/belluikit/goffmpeg-libs/iossimulator_arm64
 =====================================================
 
-lib/ contains FFmpeg libraries (https://ffmpeg.org) built for iossimulator_arm64:
-
-  libavcodec.a libavformat.a libavutil.a libswresample.a libswscale.a
-
-shared/ contains the same FFmpeg built as shared libraries, for apps that
-ship it so that a user can replace it (LGPL 2.1 section 6b):
+shared/ contains FFmpeg (https://ffmpeg.org) built for iossimulator_arm64 as shared
+libraries, so that an app ships them and a user can replace them (LGPL 2.1
+section 6b):
 
   libavcodec-goffmpeg.framework libavformat-goffmpeg.framework libavutil-goffmpeg.framework libswresample-goffmpeg.framework libswscale-goffmpeg.framework
 
@@ -20,13 +17,7 @@ text is in LICENSE at the root of this repository, and is included in this
 module's zip by the go command. The build used neither --enable-gpl nor
 --enable-nonfree; each library reports "license: LGPL version 2.1 or later".
 
-Configure line of lib/, as recorded in libavutil (avutil_configuration()).
-
-  --prefix=/iossimulator_arm64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=arm64 --target-os=darwin --enable-cross-compile --enable-securetransport --enable-videotoolbox --enable-hwaccel='h264_videotoolbox,hevc_videotoolbox,vp9_videotoolbox,av1_videotoolbox' --disable-avdevice --cc='clang -arch arm64 -isysroot /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -mios-simulator-version-min=13.0' --extra-ldflags='-isysroot /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -mios-simulator-version-min=13.0' --enable-static --disable-shared
-
-Configure line of shared/, as recorded in its libavutil. It is the line
-above with --enable-shared --disable-static and the flags that name and
-place the shared libraries.
+Configure line of shared/, as recorded in its libavutil (avutil_configuration()).
 
   --prefix=/iossimulator_arm64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=arm64 --target-os=darwin --enable-cross-compile --enable-securetransport --enable-videotoolbox --enable-hwaccel='h264_videotoolbox,hevc_videotoolbox,vp9_videotoolbox,av1_videotoolbox' --disable-avdevice --cc='clang -arch arm64 -isysroot /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -mios-simulator-version-min=13.0' --extra-ldflags='-isysroot /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -mios-simulator-version-min=13.0' --enable-shared --disable-static --build-suffix=-goffmpeg --install-name-dir='@rpath'
 
@@ -36,7 +27,7 @@ Corresponding source:
            e2bc6d88cd68184288c16570e04881c3a426a05a and stays for as long as
            libraries built from it are published.
   Build:   https://github.com/belluikit/goffmpeg (Makefile, BUILDING.md), which
-           pins that revision and these configure lines.
-  Shared:  shared/ was built by goffmpeg's 'make dist-shared' from goffmpeg
-           commit 2eb34b5 by GitHub Actions run 42569150705, from the same FFmpeg
-           revision and base configure line as lib/.
+           pins that revision and this configure line.
+  Shared:  shared/ was built by goffmpeg's 'make dist-shared' (now 'make
+           dist') from goffmpeg commit 2eb34b5 by GitHub Actions run
+           42569150705.
