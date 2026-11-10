@@ -1,11 +1,19 @@
 github.com/belluikit/goffmpeg-libs/linux_arm64
 ==============================================
 
-shared/ contains FFmpeg (https://ffmpeg.org) built for linux_arm64 as shared
-libraries, so that an app ships them and a user can replace them (LGPL 2.1
-section 6b):
+FFmpeg (https://ffmpeg.org) built for linux_arm64 as shared libraries, so that an app
+ships them and a user can replace them (LGPL 2.1 section 6b), in two codec
+sets (belluikit/goffmpeg#41). An app's binary loads one of them.
+
+shared/ holds the media set: MP3, WAV, MP4 and HLS, with H.264 video and AAC
+audio; and webcam capture, with rawvideo and MJPEG.
 
   libavcodec-goffmpeg.so.63 libavdevice-goffmpeg.so.63 libavformat-goffmpeg.so.63 libavutil-goffmpeg.so.61 libswresample-goffmpeg.so.7 libswscale-goffmpeg.so.10
+
+shared-audio/ holds the audio set: MP3 and WAV, with no libswscale and no
+libavdevice.
+
+  libavcodec-goffmpeg-audio.so.63 libavformat-goffmpeg-audio.so.63 libavutil-goffmpeg-audio.so.61 libswresample-goffmpeg-audio.so.7
 
 lib/ contains libgoffmpeg.so, goffmpeg's purego bridge (see Bridge below).
 
@@ -21,7 +29,11 @@ module's zip by the go command. The build used neither --enable-gpl nor
 
 Configure line of shared/, as recorded in its libavutil (avutil_configuration()).
 
-  --prefix=/linux_arm64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=aarch64 --target-os=linux --enable-openssl --enable-avdevice --enable-indev=v4l2 --enable-shared --disable-static --build-suffix=-goffmpeg
+  --prefix=/linux_arm64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=aarch64 --target-os=linux --enable-openssl --enable-avdevice --disable-decoders --disable-demuxers --disable-parsers --disable-bsfs --disable-hwaccels --disable-indevs --enable-demuxer='mp3,wav,mov,hls,mpegts,aac,ac3,eac3' --enable-decoder='mp3float,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_f64le,pcm_u8,h264,aac,rawvideo,mjpeg' --enable-parser='mpegaudio,h264,aac,ac3' --enable-indev=v4l2 --enable-shared --disable-static --build-suffix=-goffmpeg
+
+Configure line of shared-audio/, as recorded in its libavutil.
+
+  --prefix=/linux_arm64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=aarch64 --target-os=linux --enable-openssl --enable-avdevice --disable-decoders --disable-demuxers --disable-parsers --disable-bsfs --disable-hwaccels --disable-indevs --enable-demuxer='mp3,wav' --enable-decoder='mp3float,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_f64le,pcm_u8' --enable-parser=mpegaudio --disable-swscale --disable-avdevice --disable-videotoolbox --enable-shared --disable-static --build-suffix=-goffmpeg-audio
 
 Corresponding source:
   FFmpeg:  https://github.com/belluikit/ffmpeg/tree/goffmpeg-e2bc6d88cd
@@ -29,12 +41,13 @@ Corresponding source:
            e2bc6d88cd68184288c16570e04881c3a426a05a and stays for as long as
            libraries built from it are published.
   Build:   https://github.com/belluikit/goffmpeg (Makefile, BUILDING.md), which
-           pins that revision and this configure line.
+           pins that revision and these configure lines.
   Bridge:  lib/libgoffmpeg.* is goffmpeg's bridge.c (BSD-3-Clause), built by
            goffmpeg's 'make bridge-shared'. It holds no FFmpeg code: it loads
-           the libraries in shared/, looking beside itself and in ../shared.
+           the media set in shared/, looking beside itself and in ../shared.
            The current lib/libgoffmpeg.* was built from goffmpeg commit
-           bab6ae5 by GitHub Actions run 42684318728.
-  Shared:  shared/ was built by goffmpeg's 'make dist' on Ubuntu 22.04
-           (glibc 2.35, the oldest goffmpeg supports) from goffmpeg commit
-           bab6ae5 by GitHub Actions run 42684318728.
+           0d3e275 by GitHub Actions run 42778052636.
+  Shared:  shared/ and shared-audio/ were built by goffmpeg's 'make dist'
+           (SET=media and SET=audio) from goffmpeg commit 0d3e275 by GitHub
+           Actions run 42778052636, on Ubuntu 22.04 (glibc 2.35, the
+           oldest goffmpeg supports).

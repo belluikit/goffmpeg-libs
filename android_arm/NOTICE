@@ -1,11 +1,19 @@
 github.com/belluikit/goffmpeg-libs/android_arm
 ==============================================
 
-shared/ contains FFmpeg (https://ffmpeg.org) built for android_arm as shared
-libraries, so that an app ships them and a user can replace them (LGPL 2.1
-section 6b):
+FFmpeg (https://ffmpeg.org) built for android_arm as shared libraries, so that an app
+ships them and a user can replace them (LGPL 2.1 section 6b), in two codec
+sets (belluikit/goffmpeg#41). An app's binary loads one of them.
+
+shared/ holds the media set: MP3, WAV, MP4 and HLS, with H.264 video and AAC
+audio.
 
   libavcodec-goffmpeg.so libavformat-goffmpeg.so libavutil-goffmpeg.so libswresample-goffmpeg.so libswscale-goffmpeg.so
+
+shared-audio/ holds the audio set: MP3 and WAV, with no libswscale and no
+libavdevice.
+
+  libavcodec-goffmpeg-audio.so libavformat-goffmpeg-audio.so libavutil-goffmpeg-audio.so libswresample-goffmpeg-audio.so
 
 FFmpeg version: N-125841-ge2bc6d88cd (git revision e2bc6d88cd68184288c16570e04881c3a426a05a).
 No local patches: goffmpeg's build applies patches/*.patch to the FFmpeg
@@ -21,7 +29,11 @@ Configure line of shared/, as recorded in its libavutil (avutil_configuration())
 Absolute build-machine paths are shortened: <ndk-29.0.14206865> is the Android NDK
 of that version on the CI runner.
 
-  --prefix=/android_arm --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=arm --cpu=armv7-a --target-os=android --enable-cross-compile --disable-avdevice --enable-jni --enable-mediacodec --cc=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi21-clang --cross-prefix=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm- --nm=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-nm --ar=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar --ranlib=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ranlib --strip=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-strip --enable-shared --disable-static --build-suffix=-goffmpeg --extra-ldsoflags='-Wl,-z,max-page-size=16384'
+  --prefix=/android_arm --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=arm --cpu=armv7-a --target-os=android --enable-cross-compile --disable-avdevice --enable-jni --enable-mediacodec --cc=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi21-clang --cross-prefix=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm- --nm=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-nm --ar=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar --ranlib=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ranlib --strip=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-strip --disable-decoders --disable-demuxers --disable-parsers --disable-bsfs --disable-hwaccels --disable-indevs --enable-demuxer='mp3,wav,mov,hls,mpegts,aac,ac3,eac3' --enable-decoder='mp3float,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_f64le,pcm_u8,h264,aac' --enable-parser='mpegaudio,h264,aac,ac3' --enable-shared --disable-static --build-suffix=-goffmpeg --extra-ldsoflags='-Wl,-z,max-page-size=16384'
+
+Configure line of shared-audio/, as recorded in its libavutil.
+
+  --prefix=/android_arm --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=arm --cpu=armv7-a --target-os=android --enable-cross-compile --disable-avdevice --enable-jni --enable-mediacodec --cc=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi21-clang --cross-prefix=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm- --nm=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-nm --ar=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar --ranlib=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ranlib --strip=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-strip --disable-decoders --disable-demuxers --disable-parsers --disable-bsfs --disable-hwaccels --disable-indevs --enable-demuxer='mp3,wav' --enable-decoder='mp3float,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_f64le,pcm_u8' --enable-parser=mpegaudio --disable-swscale --disable-avdevice --disable-videotoolbox --enable-shared --disable-static --build-suffix=-goffmpeg-audio --extra-ldsoflags='-Wl,-z,max-page-size=16384'
 
 Corresponding source:
   FFmpeg:  https://github.com/belluikit/ffmpeg/tree/goffmpeg-e2bc6d88cd
@@ -29,7 +41,7 @@ Corresponding source:
            e2bc6d88cd68184288c16570e04881c3a426a05a and stays for as long as
            libraries built from it are published.
   Build:   https://github.com/belluikit/goffmpeg (Makefile, BUILDING.md), which
-           pins that revision and this configure line.
-  Shared:  shared/ was built by goffmpeg's 'make dist-shared' (now 'make
-           dist') from goffmpeg commit 2eb34b5 by GitHub Actions run
-           42569150705.
+           pins that revision and these configure lines.
+  Shared:  shared/ and shared-audio/ were built by goffmpeg's 'make dist'
+           (SET=media and SET=audio) from goffmpeg commit 0d3e275 by GitHub
+           Actions run 42778052636.
