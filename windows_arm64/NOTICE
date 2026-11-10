@@ -5,8 +5,8 @@ FFmpeg (https://ffmpeg.org) built for windows_arm64 as shared libraries, so that
 ships them and a user can replace them (LGPL 2.1 section 6b), in two codec
 sets (belluikit/goffmpeg#41). An app's binary loads one of them.
 
-shared/ holds the media set: MP3, WAV, MP4 and HLS, with H.264 video and AAC
-audio; and webcam capture, with rawvideo and MJPEG.
+shared/ holds the media set, which on desktop keeps every decoder, demuxer
+and parser FFmpeg has, and one input device, for webcam capture.
 
   avcodec-goffmpeg-63.dll avdevice-goffmpeg-63.dll avformat-goffmpeg-63.dll avutil-goffmpeg-61.dll libavcodec-goffmpeg.dll.a libavdevice-goffmpeg.dll.a libavformat-goffmpeg.dll.a libavutil-goffmpeg.dll.a libswresample-goffmpeg.dll.a libswscale-goffmpeg.dll.a swresample-goffmpeg-7.dll swscale-goffmpeg-10.dll
 
@@ -38,7 +38,7 @@ LLVM-exception, which does not require a notice for compiled code.
 
 Configure line of shared/, as recorded in its libavutil (avutil_configuration()).
 
-  --prefix=/windows_arm64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=aarch64 --target-os=mingw32 --enable-cross-compile --cross-prefix=/opt/llvm-mingw/bin/aarch64-w64-mingw32- --enable-schannel --enable-avdevice --disable-decoders --disable-demuxers --disable-parsers --disable-bsfs --disable-hwaccels --disable-indevs --enable-demuxer='mp3,wav,mov,hls,mpegts,aac,ac3,eac3' --enable-decoder='mp3float,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_f64le,pcm_u8,h264,aac,rawvideo,mjpeg' --enable-parser='mpegaudio,h264,aac,ac3' --enable-indev=dshow --enable-shared --disable-static --build-suffix=-goffmpeg
+  --prefix=/windows_arm64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=aarch64 --target-os=mingw32 --enable-cross-compile --cross-prefix=/opt/llvm-mingw/bin/aarch64-w64-mingw32- --enable-schannel --enable-avdevice --disable-indevs --enable-indev=dshow --enable-shared --disable-static --build-suffix=-goffmpeg
 
 Configure line of shared-audio/, as recorded in its libavutil.
 
@@ -57,6 +57,7 @@ Corresponding source:
            or on PATH.
            The current lib/libgoffmpeg.* was built from goffmpeg commit
            0d3e275 by GitHub Actions run 42778052636.
-  Shared:  shared/ and shared-audio/ were built by goffmpeg's 'make dist'
-           (SET=media and SET=audio) from goffmpeg commit 0d3e275 by GitHub
-           Actions run 42778052636.
+  Shared:  shared/ was built by goffmpeg's 'make dist' (SET=media) from
+           goffmpeg commit 2e781bd by GitHub Actions run 42800313247.
+           shared-audio/ was built by 'make dist SET=audio' from goffmpeg
+           commit 0d3e275 by GitHub Actions run 42778052636.
