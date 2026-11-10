@@ -1,11 +1,19 @@
 github.com/belluikit/goffmpeg-libs/darwin_amd64
 ===============================================
 
-shared/ contains FFmpeg (https://ffmpeg.org) built for darwin_amd64 as shared
-libraries, so that an app ships them and a user can replace them (LGPL 2.1
-section 6b):
+FFmpeg (https://ffmpeg.org) built for darwin_amd64 as shared libraries, so that an app
+ships them and a user can replace them (LGPL 2.1 section 6b), in two codec
+sets (belluikit/goffmpeg#41). An app's binary loads one of them.
+
+shared/ holds the media set: MP3, WAV, MP4 and HLS, with H.264 video and AAC
+audio; and webcam capture, with rawvideo and MJPEG.
 
   libavcodec-goffmpeg.63.dylib libavdevice-goffmpeg.63.dylib libavformat-goffmpeg.63.dylib libavutil-goffmpeg.61.dylib libswresample-goffmpeg.7.dylib libswscale-goffmpeg.10.dylib
+
+shared-audio/ holds the audio set: MP3 and WAV, with no libswscale and no
+libavdevice.
+
+  libavcodec-goffmpeg-audio.63.dylib libavformat-goffmpeg-audio.63.dylib libavutil-goffmpeg-audio.61.dylib libswresample-goffmpeg-audio.7.dylib
 
 lib/ contains libgoffmpeg.dylib, goffmpeg's purego bridge (see Bridge below).
 
@@ -21,7 +29,11 @@ module's zip by the go command. The build used neither --enable-gpl nor
 
 Configure line of shared/, as recorded in its libavutil (avutil_configuration()).
 
-  --prefix=/darwin_amd64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=x86_64 --target-os=darwin --enable-cross-compile --enable-securetransport --enable-videotoolbox --enable-hwaccel='h264_videotoolbox,hevc_videotoolbox,vp9_videotoolbox,av1_videotoolbox' --enable-avdevice --enable-indev=avfoundation --enable-avfoundation --cc='clang -arch x86_64 -mmacosx-version-min=11.0' --enable-shared --disable-static --build-suffix=-goffmpeg --install-name-dir='@rpath'
+  --prefix=/darwin_amd64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=x86_64 --target-os=darwin --enable-cross-compile --enable-securetransport --enable-videotoolbox --enable-avdevice --enable-avfoundation --cc='clang -arch x86_64 -mmacosx-version-min=11.0' --disable-decoders --disable-demuxers --disable-parsers --disable-bsfs --disable-hwaccels --disable-indevs --enable-demuxer='mp3,wav,mov,hls,mpegts,aac,ac3,eac3' --enable-decoder='mp3float,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_f64le,pcm_u8,h264,aac,rawvideo,mjpeg' --enable-parser='mpegaudio,h264,aac,ac3' --enable-hwaccel=h264_videotoolbox --enable-indev=avfoundation --enable-shared --disable-static --build-suffix=-goffmpeg --install-name-dir='@rpath'
+
+Configure line of shared-audio/, as recorded in its libavutil.
+
+  --prefix=/darwin_amd64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=x86_64 --target-os=darwin --enable-cross-compile --enable-securetransport --enable-videotoolbox --enable-avdevice --enable-avfoundation --cc='clang -arch x86_64 -mmacosx-version-min=11.0' --disable-decoders --disable-demuxers --disable-parsers --disable-bsfs --disable-hwaccels --disable-indevs --enable-demuxer='mp3,wav' --enable-decoder='mp3float,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_f64le,pcm_u8' --enable-parser=mpegaudio --disable-swscale --disable-avdevice --disable-videotoolbox --enable-shared --disable-static --build-suffix=-goffmpeg-audio --install-name-dir='@rpath'
 
 Corresponding source:
   FFmpeg:  https://github.com/belluikit/ffmpeg/tree/goffmpeg-e2bc6d88cd
@@ -29,13 +41,13 @@ Corresponding source:
            e2bc6d88cd68184288c16570e04881c3a426a05a and stays for as long as
            libraries built from it are published.
   Build:   https://github.com/belluikit/goffmpeg (Makefile, BUILDING.md), which
-           pins that revision and this configure line.
+           pins that revision and these configure lines.
   Bridge:  lib/libgoffmpeg.* is goffmpeg's bridge.c and bridge_avf_darwin.m
            (BSD-3-Clause), built by goffmpeg's 'make bridge-shared'. It holds
-           no FFmpeg code: it loads the libraries in shared/, looking beside
+           no FFmpeg code: it loads the media set in shared/, looking beside
            itself and in ../shared.
            The current lib/libgoffmpeg.* was built from goffmpeg commit
-           56ff0d7 by GitHub Actions run 42614744092.
-  Shared:  shared/ was built by goffmpeg's 'make dist-shared' (now 'make
-           dist') from goffmpeg commit 2eb34b5 by GitHub Actions run
-           42569150705.
+           0d3e275 by GitHub Actions run 42778052636.
+  Shared:  shared/ and shared-audio/ were built by goffmpeg's 'make dist'
+           (SET=media and SET=audio) from goffmpeg commit 0d3e275 by GitHub
+           Actions run 42778052636.

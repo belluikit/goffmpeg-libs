@@ -10,7 +10,7 @@ committed, so vendoring every target into goffmpeg itself would force each
 consumer to download all of them — roughly 260MB of module zips — to use one.
 
 Each directory here is its own module, so the proxy serves them independently
-and a build downloads only its own target (13-22MB on disk from v0.5.0). goffmpeg selects the
+and a build downloads only its own target (5-11MB on disk from v0.6.0). goffmpeg selects the
 right one with a build constraint:
 
 ```go
@@ -22,9 +22,11 @@ import _ "github.com/belluikit/goffmpeg-libs/darwin_arm64"
 The blank import contributes that platform's `#cgo LDFLAGS`, which propagate to
 the final link. The modules expose no Go API.
 
-Those flags are in `libav.go` and `libav_swscale.go`, which goffmpeg's
-`make sync-libs` generates from the files in `shared/` (its
-`scripts/gen-libav.sh`). Don't edit them by hand.
+Those flags are in `libav.go` (the media codec set, from `shared/`) and
+`libav_audio.go` (the audio set, from `shared-audio/`, under goffmpeg's
+`goffmpeg_novideo` tag), which goffmpeg's `make sync-libs` generates from the
+files in those directories (its `scripts/gen-libav.sh`). Don't edit them by
+hand.
 
 The FFmpeg *headers* are identical for every target and live in goffmpeg
 itself, so they are not duplicated here.
@@ -47,11 +49,22 @@ itself, so they are not duplicated here.
 
 ## Contents
 
-Each module carries FFmpeg for its target as shared libraries in `shared/`,
-which goffmpeg links. The desktop modules also carry
-`lib/libgoffmpeg.{so,dll,dylib}`, the bridge the purego backend
-(`CGO_ENABLED=0`) dlopens. It holds no FFmpeg code: it loads the libraries in
-`shared/`, looking beside itself and in `../shared`.
+Each module carries FFmpeg for its target as shared libraries, in two codec
+sets ([goffmpeg#41](https://github.com/belluikit/goffmpeg/issues/41)), each
+decoding only what apps play:
+
+| Set | Plays | Directory | Names | goffmpeg links it |
+|---|---|---|---|---|
+| media | MP3, WAV, MP4 and HLS with H.264 and AAC; webcams on desktop | `shared/` | `-goffmpeg` | by default |
+| audio | MP3 and WAV; no libswscale, no libavdevice | `shared-audio/` | `-goffmpeg-audio` | with `goffmpeg_novideo` |
+
+A binary loads one set, and its package carries that set alone. Each module's
+`NOTICE` records both configure lines, and goffmpeg's BUILDING.md ("What is in
+the build") the exact decoders and demuxers.
+
+The desktop modules also carry `lib/libgoffmpeg.{so,dll,dylib}`, the bridge the
+purego backend (`CGO_ENABLED=0`) dlopens. It holds no FFmpeg code: it loads the
+media set in `shared/`, looking beside itself and in `../shared`.
 
 Up to v0.4.0, `lib/` also held FFmpeg's static archives. Nothing links them
 since goffmpeg#40, so from v0.5.0 they are no longer published
@@ -59,11 +72,11 @@ since goffmpeg#40, so from v0.5.0 they are no longer published
 
 ### Shared libraries
 
-`shared/` holds FFmpeg built as shared libraries, which goffmpeg links on
-every platform, so an app ships them and a user can replace them (LGPL 2.1
-§6b; Player ADR-0037 D3,
-[goffmpeg#40](https://github.com/belluikit/goffmpeg/issues/40)). They come
-from a configure of their own, recorded in each `NOTICE`.
+goffmpeg links FFmpeg as shared libraries on every platform, so an app ships
+them and a user can replace them (LGPL 2.1 §6b; Player ADR-0037 D3,
+[goffmpeg#40](https://github.com/belluikit/goffmpeg/issues/40)). The table
+shows the media set's names; the audio set's are the same with
+`-goffmpeg-audio` (`libavcodec-goffmpeg-audio.63.dylib`).
 
 | Modules | Files in `shared/` | How a program finds them |
 |---|---|---|
@@ -92,12 +105,10 @@ avformat, and avdevice on desktop.
   signature. The app's packager re-signs it when it embeds it.
 - **The libraries carry no rpath of their own.** Whatever loads them supplies
   the search path, as in the table. On macOS and Linux the link files add an
-  rpath to this module's `shared/`, so `go run` and `go test` find them in the
+  rpath to the set's directory, so `go run` and `go test` find them in the
   module cache; a packaged app replaces it with its own. On Windows, put
-  `shared/` on `PATH` to run from source.
-- **libswscale is linked by a file of its own**, `libav_swscale.go`, which a
-  `goffmpeg_novideo` (audio-only) build leaves out. That binary does not list
-  libswscale, and its package can leave it out.
+  `shared/` (or `shared-audio/` for a `goffmpeg_novideo` build) on `PATH` to
+  run from source. The two sets' DLLs are named apart, so both can be there.
 - **On Linux, the libraries need glibc 2.35 or newer**: Ubuntu 22.04 LTS,
   Debian 12 and later. A shared library needs at least the glibc it was built
   against, so they are built on Ubuntu 22.04, and goffmpeg's build refuses one
@@ -111,8 +122,9 @@ avformat, and avdevice on desktop.
 ## Provenance and licence
 
 Built from FFmpeg `e2bc6d88cd68184288c16570e04881c3a426a05a` (`N-125841-ge2bc6d88cd`)
-by the Makefile in [goffmpeg](https://github.com/belluikit/goffmpeg), which pins the configuration. Decode-only: every native decoder,
-demuxer, parser and protocol, with encoders, muxers and avfilter disabled.
+by the Makefile in [goffmpeg](https://github.com/belluikit/goffmpeg), which pins the configuration. Decode-only, in the
+two codec sets above, with encoders, muxers and avfilter disabled; every
+protocol is kept.
 
 No `--enable-gpl` and no `--enable-nonfree`, so these artifacts are
 **LGPL v2.1 or later**. Adding a GPL component would relicense everything
@@ -151,7 +163,9 @@ because FFmpeg has to fetch the segments itself.
 Regenerate with:
 
 ```sh
-make linux-docker TARGET=linux_amd64 DOCKER_GOALS="dist bridge-shared" && make sync-libs TARGET=linux_amd64
+make linux-docker TARGET=linux_amd64 DOCKER_GOALS="dist bridge-shared"
+make linux-docker TARGET=linux_amd64 DOCKER_GOALS="dist SET=audio"
+make sync-libs TARGET=linux_amd64
 ```
 
 Publish from CI rather than a local build: goffmpeg's `check-paths` refuses
