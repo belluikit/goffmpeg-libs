@@ -50,13 +50,16 @@ itself, so they are not duplicated here.
 ## Contents
 
 Each module carries FFmpeg for its target as shared libraries, in two codec
-sets ([goffmpeg#41](https://github.com/belluikit/goffmpeg/issues/41)), each
-decoding only what apps play:
+sets ([goffmpeg#41](https://github.com/belluikit/goffmpeg/issues/41)):
 
 | Set | Plays | Directory | Names | goffmpeg links it |
 |---|---|---|---|---|
-| media | MP3, WAV, MP4 and HLS with H.264 and AAC; webcams on desktop | `shared/` | `-goffmpeg` | by default |
-| audio | MP3 and WAV; no libswscale, no libavdevice | `shared-audio/` | `-goffmpeg-audio` | with `goffmpeg_novideo` |
+| media, desktop (`darwin_*`, `linux_*`, `windows_*`) | every format FFmpeg decodes; webcams | `shared/` | `-goffmpeg` | by default |
+| media, phones (`android_*`, `ios_*`) | MP3, WAV, MP4 and HLS with H.264 and AAC | `shared/` | `-goffmpeg` | by default |
+| audio, every target | MP3 and WAV; no libswscale, no libavdevice | `shared-audio/` | `-goffmpeg-audio` | with `goffmpeg_novideo` |
+
+On the phones the media set decodes only what apps play, so an app carries no
+codec it doesn't need. On desktop it keeps every codec.
 
 A binary loads one set, and its package carries that set alone. Each module's
 `NOTICE` records both configure lines, and goffmpeg's BUILDING.md ("What is in
