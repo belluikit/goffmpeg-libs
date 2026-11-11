@@ -9,8 +9,7 @@ package linux_arm64
 // no libswscale and no libavdevice.
 
 /*
-#cgo LDFLAGS: -L${SRCDIR}/shared-audio
-#cgo LDFLAGS: -l:libavformat-goffmpeg-audio.so.63 -l:libavcodec-goffmpeg-audio.so.63 -l:libswresample-goffmpeg-audio.so.7 -l:libavutil-goffmpeg-audio.so.61
+#cgo LDFLAGS: ${SRCDIR}/shared-audio/libavformat-goffmpeg-audio-63.so ${SRCDIR}/shared-audio/libavcodec-goffmpeg-audio-63.so ${SRCDIR}/shared-audio/libswresample-goffmpeg-audio-7.so ${SRCDIR}/shared-audio/libavutil-goffmpeg-audio-61.so
 #cgo LDFLAGS: -Wl,-rpath,${SRCDIR}/shared-audio -lm
 */
 import "C"

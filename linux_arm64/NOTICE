@@ -8,12 +8,12 @@ sets (belluikit/goffmpeg#41). An app's binary loads one of them.
 shared/ holds the media set, which on desktop keeps every decoder, demuxer
 and parser FFmpeg has, and one input device, for webcam capture.
 
-  libavcodec-goffmpeg.so.63 libavdevice-goffmpeg.so.63 libavformat-goffmpeg.so.63 libavutil-goffmpeg.so.61 libswresample-goffmpeg.so.7 libswscale-goffmpeg.so.10
+  libavcodec-goffmpeg-63.so libavdevice-goffmpeg-63.so libavformat-goffmpeg-63.so libavutil-goffmpeg-61.so libswresample-goffmpeg-7.so libswscale-goffmpeg-10.so
 
 shared-audio/ holds the audio set: MP3 and WAV, with no libswscale and no
 libavdevice.
 
-  libavcodec-goffmpeg-audio.so.63 libavformat-goffmpeg-audio.so.63 libavutil-goffmpeg-audio.so.61 libswresample-goffmpeg-audio.so.7
+  libavcodec-goffmpeg-audio-63.so libavformat-goffmpeg-audio-63.so libavutil-goffmpeg-audio-61.so libswresample-goffmpeg-audio-7.so
 
 lib/ contains libgoffmpeg.so, goffmpeg's purego bridge (see Bridge below).
 

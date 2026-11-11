@@ -85,7 +85,7 @@ shows the media set's names; the audio set's are the same with
 |---|---|---|
 | `darwin_*` | `libavcodec-goffmpeg.63.dylib`, install name `@rpath/libavcodec-goffmpeg.63.dylib` | the executable's rpath |
 | `ios_arm64`, `iossimulator_arm64` | `libavcodec-goffmpeg.framework`, install name `@rpath/libavcodec-goffmpeg.framework/libavcodec-goffmpeg` | `@executable_path/Frameworks`, where the app embeds them |
-| `linux_*` | `libavcodec-goffmpeg.so.63`, soname the same | the executable's rpath |
+| `linux_*` | `libavcodec-goffmpeg-63.so`, soname the same | the executable's rpath |
 | `android_*` | `libavcodec-goffmpeg.so`, soname the same | the APK's `lib/<abi>/` |
 | `windows_*` | `avcodec-goffmpeg-63.dll`, import library `libavcodec-goffmpeg.dll.a` | the executable's directory |
 
