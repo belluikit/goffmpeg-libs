@@ -8,8 +8,7 @@ package linux_amd64
 // The media codec set (#41): MP3, WAV, and MP4 with H.264 and AAC.
 
 /*
-#cgo LDFLAGS: -L${SRCDIR}/shared
-#cgo LDFLAGS: -l:libavdevice-goffmpeg.so.63 -l:libavformat-goffmpeg.so.63 -l:libavcodec-goffmpeg.so.63 -l:libswresample-goffmpeg.so.7 -l:libswscale-goffmpeg.so.10 -l:libavutil-goffmpeg.so.61
+#cgo LDFLAGS: ${SRCDIR}/shared/libavdevice-goffmpeg-63.so ${SRCDIR}/shared/libavformat-goffmpeg-63.so ${SRCDIR}/shared/libavcodec-goffmpeg-63.so ${SRCDIR}/shared/libswresample-goffmpeg-7.so ${SRCDIR}/shared/libswscale-goffmpeg-10.so ${SRCDIR}/shared/libavutil-goffmpeg-61.so
 #cgo LDFLAGS: -Wl,-rpath,${SRCDIR}/shared -lm
 */
 import "C"
