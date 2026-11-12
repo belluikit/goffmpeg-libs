@@ -59,7 +59,9 @@ sets ([goffmpeg#41](https://github.com/belluikit/goffmpeg/issues/41)):
 | audio, every target | MP3 and WAV; no libswscale, no libavdevice | `shared-audio/` | `-goffmpeg-audio` | with `goffmpeg_novideo` |
 
 On the phones the media set decodes only what apps play, so an app carries no
-codec it doesn't need. On desktop it keeps every codec.
+codec it doesn't need. On desktop it keeps every codec. On Android the media
+set also has `h264_mediacodec`, MediaCodec's H.264 decoder (#21), which a
+caller opens by name; a lookup by codec ID still returns the software `h264`.
 
 A binary loads one set, and its package carries that set alone. Each module's
 `NOTICE` records both configure lines, and goffmpeg's BUILDING.md ("What is in
