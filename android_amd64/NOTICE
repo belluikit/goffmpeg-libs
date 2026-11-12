@@ -5,13 +5,13 @@ FFmpeg (https://ffmpeg.org) built for android_amd64 as shared libraries, so that
 ships them and a user can replace them (LGPL 2.1 section 6b), in two codec
 sets (belluikit/goffmpeg#41). An app's binary loads one of them.
 
-shared/ holds the media set: MP3, WAV, MP4 and HLS, with H.264 video and AAC
-audio.
+shared/ holds the media set: MP3, WAV, MP4, WebM, Ogg and HLS, with H.264,
+VP9 and AV1 video and AAC and Opus audio.
 
   libavcodec-goffmpeg.so libavformat-goffmpeg.so libavutil-goffmpeg.so libswresample-goffmpeg.so libswscale-goffmpeg.so
 
-shared-audio/ holds the audio set: MP3 and WAV, with no libswscale and no
-libavdevice.
+shared-audio/ holds the audio set: MP3, WAV and Opus (in Ogg), with no
+libswscale and no libavdevice.
 
   libavcodec-goffmpeg-audio.so libavformat-goffmpeg-audio.so libavutil-goffmpeg-audio.so libswresample-goffmpeg-audio.so
 
@@ -25,23 +25,58 @@ text is in LICENSE at the root of this repository, and is included in this
 module's zip by the go command. The build used neither --enable-gpl nor
 --enable-nonfree; each library reports "license: LGPL version 2.1 or later".
 
+dav1d: shared/'s libavcodec contains dav1d 1.5.2, VideoLAN's AV1 decoder
+(https://code.videolan.org/videolan/dav1d, commit
+c720f4d3556a01916324aea155555d3efba842e8), linked into it statically
+(belluikit/goffmpeg#78). It decodes AV1 in software. dav1d is under the
+BSD 2-Clause license, whose notice binary copies must reproduce:
+
+  Copyright © 2018-2025, VideoLAN and dav1d authors
+  All rights reserved.
+
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions are met:
+
+  1. Redistributions of source code must retain the above copyright notice, this
+     list of conditions and the following disclaimer.
+
+  2. Redistributions in binary form must reproduce the above copyright notice,
+     this list of conditions and the following disclaimer in the documentation
+     and/or other materials provided with the distribution.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+  ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+shared-audio/ contains no dav1d.
+
 Configure line of shared/, as recorded in its libavutil (avutil_configuration()).
 Absolute build-machine paths are shortened: <ndk-29.0.14206865> is the Android NDK
 of that version on the CI runner.
 
-  --prefix=/android_amd64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=x86_64 --target-os=android --enable-cross-compile --disable-avdevice --enable-jni --enable-mediacodec --cc=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/x86_64-linux-android21-clang --cross-prefix=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm- --nm=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-nm --ar=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar --ranlib=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ranlib --strip=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-strip --disable-decoders --disable-demuxers --disable-parsers --disable-bsfs --disable-hwaccels --disable-indevs --enable-demuxer='mp3,wav,mov,hls,mpegts,aac,ac3,eac3' --enable-decoder='mp3float,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_f64le,pcm_u8,h264,aac,h264_mediacodec' --enable-parser='mpegaudio,h264,aac,ac3' --enable-shared --disable-static --build-suffix=-goffmpeg --extra-ldsoflags='-Wl,-z,max-page-size=16384'
+  --prefix=/android_amd64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=x86_64 --target-os=android --enable-cross-compile --disable-avdevice --enable-jni --enable-mediacodec --cc=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/x86_64-linux-android21-clang --cross-prefix=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm- --nm=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-nm --ar=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar --ranlib=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ranlib --strip=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-strip --disable-decoders --disable-demuxers --disable-parsers --disable-bsfs --disable-hwaccels --disable-indevs --enable-demuxer='mp3,wav,mov,hls,mpegts,aac,ac3,eac3,matroska,ogg' --enable-decoder='mp3float,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_f64le,pcm_u8,h264,aac,vp9,libdav1d,av1,opus,h264_mediacodec,vp9_mediacodec,av1_mediacodec' --enable-parser='mpegaudio,h264,aac,ac3,vp9,av1,opus' --enable-libdav1d --pkg-config=pkg-config --pkg-config-flags=--static --enable-shared --disable-static --build-suffix=-goffmpeg --extra-ldsoflags='-Wl,-z,max-page-size=16384'
 
 Configure line of shared-audio/, as recorded in its libavutil.
 
-  --prefix=/android_amd64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=x86_64 --target-os=android --enable-cross-compile --disable-avdevice --enable-jni --enable-mediacodec --cc=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/x86_64-linux-android21-clang --cross-prefix=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm- --nm=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-nm --ar=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar --ranlib=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ranlib --strip=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-strip --disable-decoders --disable-demuxers --disable-parsers --disable-bsfs --disable-hwaccels --disable-indevs --enable-demuxer='mp3,wav' --enable-decoder='mp3float,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_f64le,pcm_u8' --enable-parser=mpegaudio --disable-swscale --disable-avdevice --disable-videotoolbox --enable-shared --disable-static --build-suffix=-goffmpeg-audio --extra-ldsoflags='-Wl,-z,max-page-size=16384'
+  --prefix=/android_amd64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=x86_64 --target-os=android --enable-cross-compile --disable-avdevice --enable-jni --enable-mediacodec --cc=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/x86_64-linux-android21-clang --cross-prefix=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm- --nm=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-nm --ar=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar --ranlib=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ranlib --strip=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-strip --disable-decoders --disable-demuxers --disable-parsers --disable-bsfs --disable-hwaccels --disable-indevs --enable-demuxer='mp3,wav,ogg' --enable-decoder='mp3float,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_f64le,pcm_u8,opus' --enable-parser='mpegaudio,opus' --disable-swscale --disable-avdevice --disable-videotoolbox --enable-shared --disable-static --build-suffix=-goffmpeg-audio --extra-ldsoflags='-Wl,-z,max-page-size=16384'
 
 Corresponding source:
   FFmpeg:  https://github.com/belluikit/ffmpeg/tree/goffmpeg-e2bc6d88cd
            belluikit's mirror of FFmpeg. The tag is commit
            e2bc6d88cd68184288c16570e04881c3a426a05a and stays for as long as
            libraries built from it are published.
+  dav1d:   https://code.videolan.org/videolan/dav1d/-/tree/1.5.2 (commit
+           c720f4d3556a01916324aea155555d3efba842e8), built by goffmpeg's
+           scripts/build-dav1d.sh.
   Build:   https://github.com/belluikit/goffmpeg (Makefile, BUILDING.md), which
-           pins that revision and these configure lines.
+           pins those revisions and these configure lines.
   Shared:  shared/ and shared-audio/ were built by goffmpeg's 'make dist'
-           (SET=media and SET=audio) from goffmpeg commit 0d3e275 by GitHub
-           Actions run 42778052636.
+           (SET=media and SET=audio) from goffmpeg commit 9db5aa3 by GitHub
+           Actions run 43291848546.

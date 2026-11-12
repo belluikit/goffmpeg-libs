@@ -6,12 +6,13 @@ ships them and a user can replace them (LGPL 2.1 section 6b), in two codec
 sets (belluikit/goffmpeg#41). An app's binary loads one of them.
 
 shared/ holds the media set, which on desktop keeps every decoder, demuxer
-and parser FFmpeg has, and one input device, for webcam capture.
+and parser FFmpeg has, plus dav1d for AV1, and one input device, for
+webcam capture.
 
   libavcodec-goffmpeg-63.so libavdevice-goffmpeg-63.so libavformat-goffmpeg-63.so libavutil-goffmpeg-61.so libswresample-goffmpeg-7.so libswscale-goffmpeg-10.so
 
-shared-audio/ holds the audio set: MP3 and WAV, with no libswscale and no
-libavdevice.
+shared-audio/ holds the audio set: MP3, WAV and Opus (in Ogg), with no
+libswscale and no libavdevice.
 
   libavcodec-goffmpeg-audio-63.so libavformat-goffmpeg-audio-63.so libavutil-goffmpeg-audio-61.so libswresample-goffmpeg-audio-7.so
 
@@ -27,29 +28,63 @@ text is in LICENSE at the root of this repository, and is included in this
 module's zip by the go command. The build used neither --enable-gpl nor
 --enable-nonfree; each library reports "license: LGPL version 2.1 or later".
 
+dav1d: shared/'s libavcodec contains dav1d 1.5.2, VideoLAN's AV1 decoder
+(https://code.videolan.org/videolan/dav1d, commit
+c720f4d3556a01916324aea155555d3efba842e8), linked into it statically
+(belluikit/goffmpeg#78). It decodes AV1 in software. dav1d is under the
+BSD 2-Clause license, whose notice binary copies must reproduce:
+
+  Copyright © 2018-2025, VideoLAN and dav1d authors
+  All rights reserved.
+
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions are met:
+
+  1. Redistributions of source code must retain the above copyright notice, this
+     list of conditions and the following disclaimer.
+
+  2. Redistributions in binary form must reproduce the above copyright notice,
+     this list of conditions and the following disclaimer in the documentation
+     and/or other materials provided with the distribution.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+  ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+shared-audio/ contains no dav1d.
+
 Configure line of shared/, as recorded in its libavutil (avutil_configuration()).
 
-  --prefix=/linux_amd64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=x86_64 --target-os=linux --enable-openssl --enable-avdevice --disable-indevs --enable-indev=v4l2 --enable-shared --disable-static --build-suffix=-goffmpeg
+  --prefix=/linux_amd64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=x86_64 --target-os=linux --enable-openssl --enable-avdevice --disable-indevs --enable-indev=v4l2 --enable-libdav1d --pkg-config=pkg-config --pkg-config-flags=--static --enable-shared --disable-static --build-suffix=-goffmpeg
 
 Configure line of shared-audio/, as recorded in its libavutil.
 
-  --prefix=/linux_amd64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=x86_64 --target-os=linux --enable-openssl --enable-avdevice --disable-decoders --disable-demuxers --disable-parsers --disable-bsfs --disable-hwaccels --disable-indevs --enable-demuxer='mp3,wav' --enable-decoder='mp3float,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_f64le,pcm_u8' --enable-parser=mpegaudio --disable-swscale --disable-avdevice --disable-videotoolbox --enable-shared --disable-static --build-suffix=-goffmpeg-audio
+  --prefix=/linux_amd64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=x86_64 --target-os=linux --enable-openssl --enable-avdevice --disable-decoders --disable-demuxers --disable-parsers --disable-bsfs --disable-hwaccels --disable-indevs --enable-demuxer='mp3,wav,ogg' --enable-decoder='mp3float,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_f64le,pcm_u8,opus' --enable-parser='mpegaudio,opus' --disable-swscale --disable-avdevice --disable-videotoolbox --enable-shared --disable-static --build-suffix=-goffmpeg-audio
 
 Corresponding source:
   FFmpeg:  https://github.com/belluikit/ffmpeg/tree/goffmpeg-e2bc6d88cd
            belluikit's mirror of FFmpeg. The tag is commit
            e2bc6d88cd68184288c16570e04881c3a426a05a and stays for as long as
            libraries built from it are published.
+  dav1d:   https://code.videolan.org/videolan/dav1d/-/tree/1.5.2 (commit
+           c720f4d3556a01916324aea155555d3efba842e8), built by goffmpeg's
+           scripts/build-dav1d.sh.
   Build:   https://github.com/belluikit/goffmpeg (Makefile, BUILDING.md), which
-           pins that revision and these configure lines.
+           pins those revisions and these configure lines.
   Bridge:  lib/libgoffmpeg.* is goffmpeg's bridge.c (BSD-3-Clause), built by
            goffmpeg's 'make bridge-shared'. It holds no FFmpeg code: it loads
            the media set in shared/, looking beside itself and in ../shared.
            The current lib/libgoffmpeg.* was built from goffmpeg commit
-           0d3e275 by GitHub Actions run 42778052636.
-  Shared:  shared/ was built by goffmpeg's 'make dist' (SET=media) from
-           goffmpeg commit 2e781bd by GitHub Actions run 42800313247.
-           shared-audio/ was built by 'make dist SET=audio' from goffmpeg
-           commit 0d3e275 by GitHub Actions run 42778052636.
+           9db5aa3 by GitHub Actions run 43291848546.
+  Shared:  shared/ and shared-audio/ were built by goffmpeg's 'make dist'
+           (SET=media and SET=audio) from goffmpeg commit 9db5aa3 by GitHub
+           Actions run 43291848546.
            Both were built on Ubuntu 22.04 (glibc 2.35, the oldest
            goffmpeg supports).
