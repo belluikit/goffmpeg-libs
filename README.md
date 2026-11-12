@@ -10,7 +10,7 @@ committed, so vendoring every target into goffmpeg itself would force each
 consumer to download all of them — roughly 260MB of module zips — to use one.
 
 Each directory here is its own module, so the proxy serves them independently
-and a build downloads only its own target (5-11MB on disk from v0.6.0). goffmpeg selects the
+and a build downloads only its own target (8-28 MB on disk from v0.9.0). goffmpeg selects the
 right one with a build constraint:
 
 ```go
@@ -54,14 +54,21 @@ sets ([goffmpeg#41](https://github.com/belluikit/goffmpeg/issues/41)):
 
 | Set | Plays | Directory | Names | goffmpeg links it |
 |---|---|---|---|---|
-| media, desktop (`darwin_*`, `linux_*`, `windows_*`) | every format FFmpeg decodes; webcams | `shared/` | `-goffmpeg` | by default |
-| media, phones (`android_*`, `ios_*`) | MP3, WAV, MP4 and HLS with H.264 and AAC | `shared/` | `-goffmpeg` | by default |
-| audio, every target | MP3 and WAV; no libswscale, no libavdevice | `shared-audio/` | `-goffmpeg-audio` | with `goffmpeg_novideo` |
+| media, desktop (`darwin_*`, `linux_*`, `windows_*`) | every format FFmpeg decodes, plus AV1 through dav1d; webcams | `shared/` | `-goffmpeg` | by default |
+| media, phones (`android_*`, `ios_*`) | MP3, WAV, MP4, WebM, Ogg and HLS, with H.264, VP9, AV1, AAC and Opus | `shared/` | `-goffmpeg` | by default |
+| audio, every target | MP3, WAV and Opus (in Ogg); no libswscale, no libavdevice | `shared-audio/` | `-goffmpeg-audio` | with `goffmpeg_novideo` |
 
 On the phones the media set decodes only what apps play, so an app carries no
 codec it doesn't need. On desktop it keeps every codec. On Android the media
-set also has `h264_mediacodec`, MediaCodec's H.264 decoder (#21), which a
-caller opens by name; a lookup by codec ID still returns the software `h264`.
+set also has MediaCodec's decoders, `h264_mediacodec` (#21), `vp9_mediacodec`
+and `av1_mediacodec` (goffmpeg#78), which a caller opens by name; a lookup by
+codec ID still returns the software decoder. On iOS it has VideoToolbox's
+H.264, VP9 and AV1 hwaccels.
+
+Every media set decodes AV1 in software with dav1d 1.5.2 (BSD-2-Clause),
+linked into libavcodec statically ([goffmpeg#78](https://github.com/belluikit/goffmpeg/issues/78)).
+FFmpeg's own `av1` decoder only drives hardware. Each `NOTICE` carries dav1d's
+license.
 
 A binary loads one set, and its package carries that set alone. Each module's
 `NOTICE` records both configure lines, and goffmpeg's BUILDING.md ("What is in
