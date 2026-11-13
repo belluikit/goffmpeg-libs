@@ -16,9 +16,13 @@ libswscale and no libavdevice.
   libavcodec-goffmpeg-audio.so libavformat-goffmpeg-audio.so libavutil-goffmpeg-audio.so libswresample-goffmpeg-audio.so
 
 FFmpeg version: N-125841-ge2bc6d88cd (git revision e2bc6d88cd68184288c16570e04881c3a426a05a).
-No local patches: goffmpeg's build applies patches/*.patch to the FFmpeg
-checkout, and goffmpeg has no such files (BUILDING.md: "The directory is
-currently empty").
+Local patch: shared/'s libavcodec is built with one change to FFmpeg,
+goffmpeg's patches/0001-mediacodecdec-stall-before-first-frame.patch
+(belluikit/goffmpeg#88, 2026-11-13). It modifies libavcodec/mediacodecdec.c:
+a MediaCodec that takes no input and returns no frame for 2 s before its
+first frame now ends with an error, which goffmpeg turns into software
+decoding, instead of a decode that never returns. shared-audio/ has no
+MediaCodec decoder and is unchanged, as are the other libraries in shared/.
 
 License: GNU Lesser General Public License, version 2.1 or later. The full
 text is in LICENSE at the root of this repository, and is included in this
@@ -68,15 +72,23 @@ Configure line of shared-audio/, as recorded in its libavutil.
   --prefix=/android_amd64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=x86_64 --target-os=android --enable-cross-compile --disable-avdevice --enable-jni --enable-mediacodec --cc=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/x86_64-linux-android21-clang --cross-prefix=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm- --nm=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-nm --ar=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar --ranlib=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ranlib --strip=<ndk-29.0.14206865>/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-strip --disable-decoders --disable-demuxers --disable-parsers --disable-bsfs --disable-hwaccels --disable-indevs --enable-demuxer='mp3,wav,ogg' --enable-decoder='mp3float,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_f64le,pcm_u8,opus' --enable-parser='mpegaudio,opus' --disable-swscale --disable-avdevice --disable-videotoolbox --enable-shared --disable-static --build-suffix=-goffmpeg-audio --extra-ldsoflags='-Wl,-z,max-page-size=16384'
 
 Corresponding source:
-  FFmpeg:  https://github.com/belluikit/ffmpeg/tree/goffmpeg-e2bc6d88cd
-           belluikit's mirror of FFmpeg. The tag is commit
-           e2bc6d88cd68184288c16570e04881c3a426a05a and stays for as long as
-           libraries built from it are published.
+  FFmpeg:  https://github.com/belluikit/ffmpeg/tree/goffmpeg-c709c83ebd
+           belluikit's mirror of FFmpeg: commit
+           c709c83ebd54858b8e1edc2e682e4796c98b4999, which is
+           e2bc6d88cd68184288c16570e04881c3a426a05a with patches/0001 applied.
+           shared/'s libavcodec was built from it.
+           https://github.com/belluikit/ffmpeg/tree/goffmpeg-e2bc6d88cd
+           is e2bc6d88cd68184288c16570e04881c3a426a05a itself, from which the
+           other libraries were built. Both tags stay for as long as
+           libraries built from them are published.
   dav1d:   https://code.videolan.org/videolan/dav1d/-/tree/1.5.2 (commit
            c720f4d3556a01916324aea155555d3efba842e8), built by goffmpeg's
            scripts/build-dav1d.sh.
   Build:   https://github.com/belluikit/goffmpeg (Makefile, BUILDING.md), which
            pins those revisions and these configure lines.
-  Shared:  shared/ and shared-audio/ were built by goffmpeg's 'make dist'
-           (SET=media and SET=audio) from goffmpeg commit 9db5aa3 by GitHub
-           Actions run 43291848546.
+  Shared:  shared/libavcodec-goffmpeg.so was built by goffmpeg's
+           'make dist' (SET=media) from goffmpeg commit 5121dea by GitHub
+           Actions run 43350896401. The other files in shared/ and
+           shared-audio/ were built by 'make dist' (SET=media and SET=audio)
+           from goffmpeg commit 9db5aa3 by GitHub Actions run 43291848546;
+           run 43350896401 rebuilt them byte for byte.
