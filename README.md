@@ -55,15 +55,22 @@ sets ([goffmpeg#41](https://github.com/belluikit/goffmpeg/issues/41)):
 | Set | Plays | Directory | Names | goffmpeg links it |
 |---|---|---|---|---|
 | media, desktop (`darwin_*`, `linux_*`, `windows_*`) | every format FFmpeg decodes, plus AV1 through dav1d; webcams | `shared/` | `-goffmpeg` | by default |
-| media, phones (`android_*`, `ios_*`) | MP3, WAV, MP4, WebM, Ogg and HLS, with H.264, VP9, AV1, AAC and Opus | `shared/` | `-goffmpeg` | by default |
-| audio, every target | MP3, WAV and Opus (in Ogg); no libswscale, no libavdevice | `shared-audio/` | `-goffmpeg-audio` | with `goffmpeg_novideo` |
+| media, phones (`android_*`, `ios_*`) | MP3, WAV, MP4, WebM, Ogg and HLS, with H.264, VP9, AV1, AAC and Opus; H.264 and AAC only through the platform's decoders | `shared/` | `-goffmpeg` | by default |
+| audio, every target | MP3, WAV, Opus (in Ogg) and AAC (in MP4, M4A and ADTS); no libswscale, no libavdevice | `shared-audio/` | `-goffmpeg-audio` | with `goffmpeg_novideo` |
 
 On the phones the media set decodes only what apps play, so an app carries no
-codec it doesn't need. On desktop it keeps every codec. On Android the media
-set also has MediaCodec's decoders, `h264_mediacodec` (#21), `vp9_mediacodec`
-and `av1_mediacodec` (goffmpeg#78), which a caller opens by name; a lookup by
-codec ID still returns the software decoder. On iOS it has VideoToolbox's
-H.264, VP9 and AV1 hwaccels.
+codec it doesn't need. On desktop it keeps every codec.
+
+On the phones, H.264 and AAC decode only through the operating system's
+decoders, which come with Apple's and Google's licences, and FFmpeg's own
+`h264` and `aac` are not built ([goffmpeg#77](https://github.com/belluikit/goffmpeg/issues/77)).
+On Android those are MediaCodec's `h264_mediacodec` and `aac_mediacodec`;
+`vp9_mediacodec` and `av1_mediacodec` (goffmpeg#78) are there too, beside
+FFmpeg's software VP9 and AV1. On iOS they are `h264_videotoolbox`, a
+standalone VideoToolbox decoder that goffmpeg's patches add, and AudioToolbox's
+`aac_at`; VP9 and AV1 have VideoToolbox hwaccels. The audio set on the phones
+decodes AAC through the same platform decoders, and on desktop with FFmpeg's
+`aac`.
 
 Every media set decodes AV1 in software with dav1d 1.5.2 (BSD-2-Clause),
 linked into libavcodec statically ([goffmpeg#78](https://github.com/belluikit/goffmpeg/issues/78)).

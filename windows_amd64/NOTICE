@@ -11,17 +11,20 @@ webcam capture.
 
   avcodec-goffmpeg-63.dll avdevice-goffmpeg-63.dll avformat-goffmpeg-63.dll avutil-goffmpeg-61.dll libavcodec-goffmpeg.dll.a libavdevice-goffmpeg.dll.a libavformat-goffmpeg.dll.a libavutil-goffmpeg.dll.a libswresample-goffmpeg.dll.a libswscale-goffmpeg.dll.a swresample-goffmpeg-7.dll swscale-goffmpeg-10.dll
 
-shared-audio/ holds the audio set: MP3, WAV and Opus (in Ogg), with no
-libswscale and no libavdevice.
+shared-audio/ holds the audio set: MP3, WAV, Opus (in Ogg) and AAC (in MP4,
+M4A and ADTS), with no libswscale and no libavdevice. AAC decodes with
+FFmpeg's own aac decoder, as in the media set (belluikit/goffmpeg#77).
 
   avcodec-goffmpeg-audio-63.dll avformat-goffmpeg-audio-63.dll avutil-goffmpeg-audio-61.dll libavcodec-goffmpeg-audio.dll.a libavformat-goffmpeg-audio.dll.a libavutil-goffmpeg-audio.dll.a libswresample-goffmpeg-audio.dll.a swresample-goffmpeg-audio-7.dll
 
 lib/ contains libgoffmpeg.dll, goffmpeg's purego bridge (see Bridge below).
 
 FFmpeg version: N-125841-ge2bc6d88cd (git revision e2bc6d88cd68184288c16570e04881c3a426a05a).
-No local patches: goffmpeg's build applies patches/*.patch to the FFmpeg
-checkout, and goffmpeg has no such files (BUILDING.md: "The directory is
-currently empty").
+Local patches: the libraries here were built from FFmpeg with goffmpeg's
+ten patches applied, patches/0001 to 0010 (BUILDING.md lists them).
+None of them changes code built for Windows: they change FFmpeg's
+MediaCodec, AudioToolbox and VideoToolbox decoders, and shared/ came out
+the same as without them, but for timestamps (see Shared below).
 
 License: GNU Lesser General Public License, version 2.1 or later. The full
 text is in LICENSE at the root of this repository, and is included in this
@@ -74,13 +77,19 @@ Configure line of shared/, as recorded in its libavutil (avutil_configuration())
 
 Configure line of shared-audio/, as recorded in its libavutil.
 
-  --prefix=/windows_amd64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=x86_64 --target-os=mingw32 --enable-cross-compile --cross-prefix=x86_64-w64-mingw32- --enable-schannel --enable-avdevice --disable-decoders --disable-demuxers --disable-parsers --disable-bsfs --disable-hwaccels --disable-indevs --enable-demuxer='mp3,wav,ogg' --enable-decoder='mp3float,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_f64le,pcm_u8,opus' --enable-parser='mpegaudio,opus' --disable-swscale --disable-avdevice --disable-videotoolbox --enable-shared --disable-static --build-suffix=-goffmpeg-audio --extra-ldsoflags=-static-libgcc
+  --prefix=/windows_amd64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=x86_64 --target-os=mingw32 --enable-cross-compile --cross-prefix=x86_64-w64-mingw32- --enable-schannel --enable-avdevice --disable-decoders --disable-demuxers --disable-parsers --disable-bsfs --disable-hwaccels --disable-indevs --enable-demuxer='mp3,wav,ogg,mov,aac' --enable-decoder='mp3float,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_f64le,pcm_u8,opus,aac' --enable-parser='mpegaudio,opus,aac' --disable-swscale --disable-avdevice --disable-videotoolbox --enable-shared --disable-static --build-suffix=-goffmpeg-audio --extra-ldsoflags=-static-libgcc
 
 Corresponding source:
-  FFmpeg:  https://github.com/belluikit/ffmpeg/tree/goffmpeg-e2bc6d88cd
-           belluikit's mirror of FFmpeg. The tag is commit
-           e2bc6d88cd68184288c16570e04881c3a426a05a and stays for as long as
-           libraries built from it are published.
+  FFmpeg:  https://github.com/belluikit/ffmpeg/tree/goffmpeg-08935ba7fa
+           belluikit's mirror of FFmpeg: commit
+           08935ba7fa75fb1278823d176464627c810b75f1, which is
+           e2bc6d88cd68184288c16570e04881c3a426a05a with patches/0001
+           to 0010 applied, one commit each. shared-audio/ and lib/'s
+           bridge were built from it.
+           https://github.com/belluikit/ffmpeg/tree/goffmpeg-e2bc6d88cd
+           is e2bc6d88cd68184288c16570e04881c3a426a05a itself, from which
+           the rest of shared/ was built. Both tags stay for as long as
+           libraries built from them are published.
   dav1d:   https://code.videolan.org/videolan/dav1d/-/tree/1.5.2 (commit
            c720f4d3556a01916324aea155555d3efba842e8), built by goffmpeg's
            scripts/build-dav1d.sh.
@@ -91,7 +100,10 @@ Corresponding source:
            the media set's DLLs in shared/, which must be beside the executable
            or on PATH.
            The current lib/libgoffmpeg.* was built from goffmpeg commit
-           9db5aa3 by GitHub Actions run 43291848546.
-  Shared:  shared/ and shared-audio/ were built by goffmpeg's 'make dist'
-           (SET=media and SET=audio) from goffmpeg commit 9db5aa3 by GitHub
-           Actions run 43291848546.
+           1d1cff5 by GitHub Actions run 43596834224.
+  Shared:  shared-audio/ was built by goffmpeg's 'make dist' (SET=audio)
+           from goffmpeg commit 1d1cff5 by GitHub Actions run 43596834224.
+           shared/ was built by 'make dist' (SET=media) from goffmpeg commit
+           9db5aa3 by GitHub Actions run 43291848546; run 43596834224
+           rebuilt it with only each DLL's timestamps (PE header and
+           export table) and checksum different.
