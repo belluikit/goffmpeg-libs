@@ -11,17 +11,24 @@ webcam capture.
 
   libavcodec-goffmpeg.63.dylib libavdevice-goffmpeg.63.dylib libavformat-goffmpeg.63.dylib libavutil-goffmpeg.61.dylib libswresample-goffmpeg.7.dylib libswscale-goffmpeg.10.dylib
 
-shared-audio/ holds the audio set: MP3, WAV and Opus (in Ogg), with no
-libswscale and no libavdevice.
+shared-audio/ holds the audio set: MP3, WAV, Opus (in Ogg) and AAC (in MP4,
+M4A and ADTS), with no libswscale and no libavdevice. AAC decodes with
+FFmpeg's own aac decoder, as in the media set (belluikit/goffmpeg#77).
 
   libavcodec-goffmpeg-audio.63.dylib libavformat-goffmpeg-audio.63.dylib libavutil-goffmpeg-audio.61.dylib libswresample-goffmpeg-audio.7.dylib
 
 lib/ contains libgoffmpeg.dylib, goffmpeg's purego bridge (see Bridge below).
 
 FFmpeg version: N-125841-ge2bc6d88cd (git revision e2bc6d88cd68184288c16570e04881c3a426a05a).
-No local patches: goffmpeg's build applies patches/*.patch to the FFmpeg
-checkout, and goffmpeg has no such files (BUILDING.md: "The directory is
-currently empty").
+Local patches: the libraries here were built from FFmpeg with goffmpeg's
+ten patches applied, patches/0001 to 0010 (BUILDING.md lists them).
+One of them changes code built for macOS: 0006 adds
+libavcodec/videotoolboxdec.c, the h264_videotoolbox decoder (#77), which
+shared/'s libavcodec now contains because the desktop media set keeps
+every decoder. goffmpeg opens it only in a build without FFmpeg's h264,
+so macOS still decodes H.264 with h264 and its VideoToolbox hwaccel. The
+other nine change FFmpeg's MediaCodec and AudioToolbox decoders, which are
+not built for macOS, and the rest of shared/ came out byte for byte.
 
 License: GNU Lesser General Public License, version 2.1 or later. The full
 text is in LICENSE at the root of this repository, and is included in this
@@ -66,13 +73,19 @@ Configure line of shared/, as recorded in its libavutil (avutil_configuration())
 
 Configure line of shared-audio/, as recorded in its libavutil.
 
-  --prefix=/darwin_arm64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=arm64 --target-os=darwin --enable-securetransport --enable-videotoolbox --enable-avdevice --enable-avfoundation --cc='clang -arch arm64 -mmacosx-version-min=11.0' --disable-decoders --disable-demuxers --disable-parsers --disable-bsfs --disable-hwaccels --disable-indevs --enable-demuxer='mp3,wav,ogg' --enable-decoder='mp3float,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_f64le,pcm_u8,opus' --enable-parser='mpegaudio,opus' --disable-swscale --disable-avdevice --disable-videotoolbox --enable-shared --disable-static --build-suffix=-goffmpeg-audio --install-name-dir='@rpath' --extra-ldsoflags='-Wl,-headerpad_max_install_names'
+  --prefix=/darwin_arm64 --extra-cflags=-fPIC --enable-pic --disable-autodetect --disable-programs --disable-doc --disable-debug --disable-encoders --disable-muxers --disable-avfilter --enable-swscale --enable-swresample --enable-network --arch=arm64 --target-os=darwin --enable-securetransport --enable-videotoolbox --enable-avdevice --enable-avfoundation --cc='clang -arch arm64 -mmacosx-version-min=11.0' --disable-decoders --disable-demuxers --disable-parsers --disable-bsfs --disable-hwaccels --disable-indevs --enable-demuxer='mp3,wav,ogg,mov,aac' --enable-decoder='mp3float,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_f64le,pcm_u8,opus,aac' --enable-parser='mpegaudio,opus,aac' --disable-swscale --disable-avdevice --disable-videotoolbox --enable-shared --disable-static --build-suffix=-goffmpeg-audio --install-name-dir='@rpath' --extra-ldsoflags='-Wl,-headerpad_max_install_names'
 
 Corresponding source:
-  FFmpeg:  https://github.com/belluikit/ffmpeg/tree/goffmpeg-e2bc6d88cd
-           belluikit's mirror of FFmpeg. The tag is commit
-           e2bc6d88cd68184288c16570e04881c3a426a05a and stays for as long as
-           libraries built from it are published.
+  FFmpeg:  https://github.com/belluikit/ffmpeg/tree/goffmpeg-08935ba7fa
+           belluikit's mirror of FFmpeg: commit
+           08935ba7fa75fb1278823d176464627c810b75f1, which is
+           e2bc6d88cd68184288c16570e04881c3a426a05a with patches/0001
+           to 0010 applied, one commit each. shared-audio/, shared/'s
+           libavcodec and lib/'s bridge were built from it.
+           https://github.com/belluikit/ffmpeg/tree/goffmpeg-e2bc6d88cd
+           is e2bc6d88cd68184288c16570e04881c3a426a05a itself, from which
+           the rest of shared/ was built. Both tags stay for as long as
+           libraries built from them are published.
   dav1d:   https://code.videolan.org/videolan/dav1d/-/tree/1.5.2 (commit
            c720f4d3556a01916324aea155555d3efba842e8), built by goffmpeg's
            scripts/build-dav1d.sh.
@@ -83,7 +96,10 @@ Corresponding source:
            no FFmpeg code: it loads the media set in shared/, looking beside
            itself and in ../shared.
            The current lib/libgoffmpeg.* was built from goffmpeg commit
-           9db5aa3 by GitHub Actions run 43291848546.
-  Shared:  shared/ and shared-audio/ were built by goffmpeg's 'make dist'
-           (SET=media and SET=audio) from goffmpeg commit 9db5aa3 by GitHub
-           Actions run 43291848546.
+           1d1cff5 by GitHub Actions run 43596834224.
+  Shared:  shared/libavcodec-goffmpeg.63.dylib and shared-audio/ were built by
+           goffmpeg's 'make dist' (SET=media and SET=audio) from goffmpeg
+           commit 1d1cff5 by GitHub Actions run 43596834224. The other files in
+           shared/ were built by 'make dist' (SET=media) from goffmpeg commit
+           9db5aa3 by GitHub Actions run 43291848546; run 43596834224
+           rebuilt them byte for byte.
